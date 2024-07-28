@@ -17,6 +17,9 @@ application {
 dependencies {
     implementation(projects.shared)
 
+    implementation(projects.server.application.controller)
+    implementation(projects.server.application.presenter)
+
     implementation(libs.dotenv.kotlin)
 
     implementation(libs.logback)
@@ -33,8 +36,8 @@ dependencies {
     implementation(libs.ktor.server.config.yaml)
 
     // kotlin rpc
-    implementation(libs.kotlinx.rpc.krpc.server)
-    implementation(libs.kotlinx.rpc.krpc.serialization.protobuf)
+//    implementation(libs.kotlinx.rpc.krpc.server)
+//    implementation(libs.kotlinx.rpc.krpc.serialization.protobuf)
     implementation(libs.kotlinx.rpc.krpc.ktor.server)
 
     testImplementation(libs.ktor.server.tests)
@@ -42,16 +45,14 @@ dependencies {
 
     // exposed
     implementation(libs.exposed.core)
-    implementation(libs.exposed.dao)
-    implementation(libs.exposed.jdbc) // or
-    implementation(libs.exposed.kotlin.datetime)
-
+    implementation(libs.exposed.jdbc)
     implementation(libs.mariadb.connector.java)
 
     implementation(libs.hikaricp)
 
     implementation(libs.flyway.core)
     implementation(libs.flyway.mysql)
+    implementation(libs.koin.ktor)
 
 //    implementation("com.kborowy:firebase-auth-provider:1.1.4")
 //    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")

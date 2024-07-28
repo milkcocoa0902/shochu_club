@@ -1,7 +1,7 @@
-package com.milkcocoa.info.shochu_club.database.entities
+package com.milkcocoa.info.shochu_club.server.infra.database.entities
 
-import com.milkcocoa.info.shochu_club.database.tables.ShochuClubUserId
-import com.milkcocoa.info.shochu_club.database.tables.shochu_club_user
+import com.milkcocoa.info.shochu_club.server.infra.database.tables.ShochuClubUserId
+import com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_club_user
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID

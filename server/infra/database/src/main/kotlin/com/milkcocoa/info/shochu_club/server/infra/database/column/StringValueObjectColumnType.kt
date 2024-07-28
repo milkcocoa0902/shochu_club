@@ -1,4 +1,4 @@
-package com.milkcocoa.info.shochu_club.database.types.column
+package com.milkcocoa.info.shochu_club.server.infra.database.column
 
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table

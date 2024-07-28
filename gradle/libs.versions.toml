@@ -17,6 +17,7 @@ exposedVersion = "0.52.0"
 flywayCore = "10.16.0"
 hikaricp = "5.0.1"
 junit = "4.13.2"
+koinKtor = "3.2.0"
 kotlinVersion = "1.9.24"
 #kotlinVersion = "2.0.0"
 ktor = "2.3.12"
@@ -45,6 +46,7 @@ exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datet
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywayCore" }
 flyway-mysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flywayCore" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koinKtor" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

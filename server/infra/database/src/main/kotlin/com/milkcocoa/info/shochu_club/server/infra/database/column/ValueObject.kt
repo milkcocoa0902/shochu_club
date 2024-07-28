@@ -1,4 +1,4 @@
-package com.milkcocoa.info.shochu_club.database.types.column
+package com.milkcocoa.info.shochu_club.server.infra.database.column
 
 open class ValueObject<V>(
     val value: V,

@@ -1,8 +1,8 @@
-package com.milkcocoa.info.shochu_club.database.tables
+package com.milkcocoa.info.shochu_club.server.infra.database.tables
 
-import com.milkcocoa.info.shochu_club.database.types.column.ValueObject
-import com.milkcocoa.info.shochu_club.database.types.column.stringValueObject
-import com.milkcocoa.info.shochu_club.database.types.column.uuidValueObject
+import com.milkcocoa.info.shochu_club.server.infra.database.column.ValueObject
+import com.milkcocoa.info.shochu_club.server.infra.database.column.stringValueObject
+import com.milkcocoa.info.shochu_club.server.infra.database.column.uuidValueObject
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
