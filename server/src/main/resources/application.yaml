@@ -1,0 +1,15 @@
+ktor:
+  deployment:
+    port: 8080
+    host: 0.0.0.0
+  application:
+    modules:
+      - "com.milkcocoa.info.shochu_club.ApplicationKt.apiModule"
+  database:
+    url: "jdbc:mariadb://$MARIADB_HOST:$MARIADB_EXPOSED_PORT/$MARIADB_DATABASE"
+    db: $MARIADB_DATABASE
+    host: $MARIADB_HOST
+    port: $MARIADB_EXPOSED_PORT
+    driver: org.mariadb.jdbc.Driver
+    user: $MARIADB_USER
+    password: $MARIADB_PASSWORD

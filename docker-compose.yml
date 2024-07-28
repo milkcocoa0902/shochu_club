@@ -1,0 +1,27 @@
+services:
+  db:
+    image: mariadb:10.11.6-jammy
+    ports:
+      # ポート設定
+      - '41375:3306'
+    env_file:
+      - .env
+    environment:
+      # タイムゾーン
+      TZ: Asia/Tokyo
+    volumes:
+      - type: bind
+        source: ./initsql
+        target: /docker-entrypoint-initdb.d
+      - type: bind
+        source: ./conf.d
+        target: /etc/mysql/conf.d
+      - type: volume
+        source: db-volume
+        target: /var/lib/mysql
+
+# ボリューム設定（永続化のため）
+volumes:
+  db-volume:
+    name: mariadb-data
+    driver: local
