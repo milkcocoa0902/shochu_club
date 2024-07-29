@@ -19,6 +19,8 @@ dependencies {
 
     implementation(projects.server.application.controller)
     implementation(projects.server.application.presenter)
+    implementation(projects.server.infra.database)
+    implementation(projects.server.infra.di)
 
     implementation(libs.dotenv.kotlin)
 
@@ -44,14 +46,7 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
 
     // exposed
-    implementation(libs.exposed.core)
-    implementation(libs.exposed.jdbc)
-    implementation(libs.mariadb.connector.java)
 
-    implementation(libs.hikaricp)
-
-    implementation(libs.flyway.core)
-    implementation(libs.flyway.mysql)
     implementation(libs.koin.ktor)
 
 //    implementation("com.kborowy:firebase-auth-provider:1.1.4")

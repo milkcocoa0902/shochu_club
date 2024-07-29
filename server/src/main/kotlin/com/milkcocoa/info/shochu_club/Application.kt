@@ -1,42 +1,39 @@
 package com.milkcocoa.info.shochu_club
 
+import appModule
 import com.milkcocoa.info.shochu_club.server.application.controller.accountRoute
 import com.milkcocoa.info.shochu_club.server.application.controller.awesomeRoute
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
+import com.milkcocoa.info.shochu_club.server.infra.database.DataSourceFactory
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.rpc.transport.ktor.server.RPC
-import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.sql.Database
+import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 
 fun Application.apiModule() {
-    val dbName = environment.config.propertyOrNull("ktor.database.db")?.getString() ?: ""
-    val dbHost = environment.config.propertyOrNull("ktor.database.host")?.getString() ?: ""
-    val dbPort = environment.config.propertyOrNull("ktor.database.port")?.getString() ?: ""
-    val dbDriver = environment.config.propertyOrNull("ktor.database.driver")?.getString() ?: ""
-    val dbUser = environment.config.propertyOrNull("ktor.database.user")?.getString() ?: ""
-    val dbPassword = environment.config.propertyOrNull("ktor.database.password")?.getString() ?: ""
+    install(Koin) {
+        modules(
+            appModule,
+        )
+    }
 
-    HikariConfig()
-        .apply hikari@{
-            this.jdbcUrl = "jdbc:mariadb://$dbHost:$dbPort/$dbName"
-            driverClassName = dbDriver
-            username = dbUser
-            password = dbPassword
-            maximumPoolSize = 100
-        }.let {
-            HikariDataSource(it)
-        }.apply {
-            Database.connect(this)
-            Flyway
-                .configure()
-                .dataSource(this)
-                .load()
-                .migrate()
-        }
-    install(Koin)
+    val dataSourceFactory: DataSourceFactory by inject()
+    val dataSource =
+        dataSourceFactory.dataSource(
+            dbName = environment.config.propertyOrNull("ktor.database.db")?.getString() ?: "",
+            dbHost = environment.config.propertyOrNull("ktor.database.host")?.getString() ?: "",
+            dbPort =
+                environment.config
+                    .propertyOrNull("ktor.database.port")
+                    ?.getString()
+                    ?.toIntOrNull() ?: 3306,
+            dbUser = environment.config.propertyOrNull("ktor.database.user")?.getString() ?: "",
+            dbPassword = environment.config.propertyOrNull("ktor.database.password")?.getString() ?: "",
+            poolSize = 50,
+        )
+    dataSourceFactory.connect(dataSource)
+    dataSourceFactory.applyMigration(dataSource)
+
     install(RPC)
     routing {
         awesomeRoute()

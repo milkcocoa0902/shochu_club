@@ -15,6 +15,7 @@ repositories {
 }
 
 dependencies {
+    implementation(projects.server.infra.database)
     implementation(libs.koin.ktor)
     testImplementation(kotlin("test"))
 }
