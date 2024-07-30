@@ -14,3 +14,8 @@ data class EmailAccountIdentifier(
 data class HandleNameAccountIdentifier(
     val handleName: String,
 ) : AccountIdentifier()
+
+@Serializable
+data class IdTokenAccountIdentifier(
+    val idToken: String,
+) : AccountIdentifier()

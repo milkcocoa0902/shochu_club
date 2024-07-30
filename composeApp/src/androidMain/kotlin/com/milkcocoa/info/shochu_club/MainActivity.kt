@@ -6,7 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.milkcocoa.info.shochu_club.services.AwesomeService
+import com.milkcocoa.info.shochu_club.models.HandleNameAccountIdentifier
+import com.milkcocoa.info.shochu_club.services.AccountManagementService
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -29,7 +30,7 @@ class MainActivity : ComponentActivity() {
                 HttpClient(CIO) {
                     installRPC()
                 }.rpc {
-                    url("ws://10.0.2.2:8080/awesome")
+                    url("ws://10.0.2.2:8080/account")
 
                     rpcConfig {
                         serialization {
@@ -39,23 +40,27 @@ class MainActivity : ComponentActivity() {
                 }
 
             streamScoped {
-//                rpcClient.withService<AccountManagementService>().checkAccountExistence(
-//                    HandleNameAccountIdentifier(handleName = "milkcocoa0902"),
-//                )
-//                rpcClient.withService<AccountManagementService>().signin(HandleNameAccountIdentifier(handleName = "milkcocoa0902"))
-//                rpcClient.withService<AccountManagementService>().signup(HandleNameAccountIdentifier(handleName = "milkcocoa0902"))
-//                rpcClient.withService<AccountManagementService>().logout(HandleNameAccountIdentifier(handleName = "milkcocoa0902"))
-//                rpcClient.withService<AccountManagementService>().deleteAccount(
-//                    HandleNameAccountIdentifier(handleName = "milkcocoa0902"),
-//                    deleteAccountToken = "asgrfg",
-//                )
+                rpcClient.withService<AccountManagementService>().checkAccountExistence(
+                    HandleNameAccountIdentifier(handleName = "milkcocoa0902"),
+                )
+                rpcClient.withService<AccountManagementService>().signInWithEmail(
+                    email = "",
+                    password = "",
+                )
+                rpcClient.withService<AccountManagementService>().signin(HandleNameAccountIdentifier(handleName = "milkcocoa0902"))
+                rpcClient.withService<AccountManagementService>().signup(HandleNameAccountIdentifier(handleName = "milkcocoa0902"))
+                rpcClient.withService<AccountManagementService>().logout(HandleNameAccountIdentifier(handleName = "milkcocoa0902"))
+                rpcClient.withService<AccountManagementService>().deleteAccount(
+                    HandleNameAccountIdentifier(handleName = "milkcocoa0902"),
+                    deleteAccountToken = "asgrfg",
+                )
             }
 
-            streamScoped {
-                rpcClient.withService<AwesomeService>().getNews("KotlinBurg").collect { article ->
-                    println(article)
-                }
-            }
+//            streamScoped {
+//                rpcClient.withService<AwesomeService>().getNews("KotlinBurg").collect { article ->
+//                    println(article)
+//                }
+//            }
         }
         setContent {
             App()

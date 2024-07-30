@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.googleKsp)
     alias(libs.plugins.kotlinx.rpc.platform)
-    application
 }
 
 group = "com.milkcocoa.info.shochu_club.server.infra"
@@ -15,6 +14,9 @@ repositories {
 }
 
 dependencies {
+    implementation(projects.server.domain.model)
+    implementation(projects.server.domain.repository)
+
     // exposed
     implementation(libs.exposed.core)
     implementation(libs.exposed.dao)

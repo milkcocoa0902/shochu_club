@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.googleKsp)
     alias(libs.plugins.kotlinx.rpc.platform)
-    application
 }
 
 group = "com.milkcocoa.info.shochu_club.server.domain"
@@ -15,6 +14,7 @@ repositories {
 }
 
 dependencies {
+    implementation(projects.server.domain.model)
     testImplementation(kotlin("test"))
 }
 

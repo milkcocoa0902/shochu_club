@@ -56,3 +56,9 @@ include("server:application:presenter")
 findProject(":server:application:presenter")?.name = "presenter"
 include("server:application:controller")
 findProject(":server:application:controller")?.name = "controller"
+include("server:usecase")
+findProject(":server:usecase")?.name = "usecase"
+include("server:infra:firebase")
+findProject(":server:infra:firebase")?.name = "firebase"
+include("server:domain:service")
+findProject(":server:domain:service")?.name = "service"
