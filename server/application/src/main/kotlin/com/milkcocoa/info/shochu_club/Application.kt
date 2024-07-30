@@ -1,6 +1,7 @@
 package com.milkcocoa.info.shochu_club
 
 import appModule
+import com.google.firebase.FirebaseApp
 import com.milkcocoa.info.shochu_club.server.application.controller.accountRoute
 import com.milkcocoa.info.shochu_club.server.application.controller.awesomeRoute
 import com.milkcocoa.info.shochu_club.server.infra.database.DataSourceFactory
@@ -11,6 +12,8 @@ import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 
 fun Application.apiModule() {
+    FirebaseApp.initializeApp()
+
     install(Koin) {
         modules(
             appModule,

@@ -9,5 +9,5 @@ class AccountSignInUseCaseImpl : AccountSignInUseCase {
     override suspend fun signIn(
         credential: IdToken,
         repository: AccountRepository,
-    ): Result<Account> = repository.signIn(credential)
+    ): Account = repository.signIn(credential)
 }

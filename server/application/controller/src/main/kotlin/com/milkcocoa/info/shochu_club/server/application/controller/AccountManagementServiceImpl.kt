@@ -2,6 +2,7 @@ package com.milkcocoa.info.shochu_club.server.application.controller
 
 import com.milkcocoa.info.shochu_club.models.AccountIdentifier
 import com.milkcocoa.info.shochu_club.models.EmailAccountIdentifier
+import com.milkcocoa.info.shochu_club.models.IdTokenAccountIdentifier
 import com.milkcocoa.info.shochu_club.server.domain.model.IdToken
 import com.milkcocoa.info.shochu_club.server.domain.service.AccountSignInService
 import com.milkcocoa.info.shochu_club.server.service.AccountSignInWithEmailService
@@ -20,12 +21,9 @@ class AccountManagementServiceImpl(
 ) : AccountManagementService {
     override suspend fun checkAccountExistence(identifier: AccountIdentifier): Boolean = true
 
-    override suspend fun signInWithEmail(
-        email: String,
-        password: String,
-    ): Result<EmailAccountIdentifier> {
+    override suspend fun signInWithEmail(idToken: IdTokenAccountIdentifier): EmailAccountIdentifier {
         emailAccountService.signIn(
-            credential = IdToken(value = ""),
+            credential = IdToken(value = idToken.idToken),
         )
         TODO("not implemented yet")
     }

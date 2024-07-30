@@ -6,23 +6,19 @@ import com.milkcocoa.info.shochu_club.server.domain.model.IdToken
 import com.milkcocoa.info.shochu_club.server.domain.repository.AccountRepository
 
 class GoogleAccountRepositoryImpl : AccountRepository {
-    override suspend fun signUp(credential: IdToken): Result<Account> {
+    override suspend fun signUp(credential: IdToken): Account {
         val account = FirebaseAuth.getInstance().verifyIdToken(credential.value, true)
 
-        return Result.success(
-            Account(
-                uid = account.uid,
-            ),
+        return Account(
+            uid = account.uid,
         )
     }
 
-    override suspend fun signIn(credential: IdToken): Result<Account> {
+    override suspend fun signIn(credential: IdToken): Account {
         val account = FirebaseAuth.getInstance().verifyIdToken(credential.value, true)
 
-        return Result.success(
-            Account(
-                uid = account.uid,
-            ),
+        return Account(
+            uid = account.uid,
         )
     }
 }

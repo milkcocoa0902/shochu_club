@@ -18,6 +18,7 @@ dependencies {
     implementation(projects.server.domain.repository)
     implementation(projects.server.domain.usecase)
     implementation(projects.server.domain.service)
+    implementation(libs.exposed.core)
     testImplementation(kotlin("test"))
 }
 

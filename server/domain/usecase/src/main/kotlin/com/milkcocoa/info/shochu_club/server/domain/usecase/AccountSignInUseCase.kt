@@ -8,5 +8,5 @@ interface AccountSignInUseCase {
     suspend fun signIn(
         credential: IdToken,
         repository: AccountRepository,
-    ): Result<Account>
+    ): Account
 }

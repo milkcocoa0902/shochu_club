@@ -20,4 +20,5 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization) apply false
     alias(libs.plugins.googleKsp) apply false
     alias(libs.plugins.aboutLibraries) apply false
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }

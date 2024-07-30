@@ -6,6 +6,7 @@ import com.milkcocoa.info.shochu_club.server.domain.repository.AccountRepository
 import com.milkcocoa.info.shochu_club.server.domain.service.AccountSignInService
 import com.milkcocoa.info.shochu_club.server.domain.usecase.AccountSignInUseCase
 import com.milkcocoa.info.shochu_club.server.domain.usecase.GetUserUseCase
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class AccountSignInWithEmailService(
     private val accountSignInUseCase: AccountSignInUseCase,
@@ -13,11 +14,10 @@ class AccountSignInWithEmailService(
     private val accountRepository: AccountRepository,
 ) : AccountSignInService {
     override suspend fun signIn(credential: IdToken): User {
-        val account = accountSignInUseCase.signIn(credential, accountRepository)
-        if (account.isFailure) {
-            error("")
-        }
+        return newSuspendedTransaction {
+            val account = accountSignInUseCase.signIn(credential, accountRepository)
 
-        return getUserUseCase.findByUid(account.getOrThrow())
+            return@newSuspendedTransaction getUserUseCase.findByUid(account)
+        }
     }
 }
