@@ -15,6 +15,7 @@ class UUIDValueColumnType<T : ValueObject<UUID>>(
             .uuidType()
 
     @OptIn(ExperimentalStdlibApi::class)
+    @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T =
         when (value) {
             is ValueObject<*> -> value as T

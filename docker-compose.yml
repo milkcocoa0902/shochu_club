@@ -3,7 +3,7 @@ services:
     image: mariadb:10.11.6-jammy
     ports:
       # ポート設定
-      - '41375:3306'
+      - '${MARIADB_EXPOSED_PORT}:3306'
     env_file:
       - .env
     environment:
@@ -11,17 +11,21 @@ services:
       TZ: Asia/Tokyo
     volumes:
       - type: bind
-        source: ./initsql
+        source: ./environment/initsql
         target: /docker-entrypoint-initdb.d
       - type: bind
-        source: ./conf.d
+        source: ./environment/conf.d
         target: /etc/mysql/conf.d
       - type: volume
         source: db-volume
         target: /var/lib/mysql
+  redis:
+    image: redis:7.2.3
+    ports:
+      - "${REDIS_EXPOSED_PORT}:6379"
 
 # ボリューム設定（永続化のため）
 volumes:
   db-volume:
-    name: mariadb-data
+    name: shochu_club-db-data
     driver: local

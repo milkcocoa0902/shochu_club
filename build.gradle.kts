@@ -1,7 +1,7 @@
 buildscript {
     dependencies {
         classpath(libs.hilt.android.gradle.plugin)
-        classpath(libs.kotlinx.serialization)
+        classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.5")
     }
 }
 

@@ -1,6 +1,8 @@
 package com.milkcocoa.info.shochu_club.server.infra.database.column
 
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnType
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
@@ -12,6 +14,7 @@ class StringValueColumnType<T : ValueObject<String>>(
         org.jetbrains.exposed.sql.vendors.currentDialect.dataTypeProvider
             .textType()
 
+    @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T =
         when (value) {
             is ValueObject<*> -> value as T
@@ -37,3 +40,18 @@ class StringValueColumnType<T : ValueObject<String>>(
 }
 
 inline fun <reified T : ValueObject<String>> Table.stringValueObject(name: String) = registerColumn<T>(name, StringValueColumnType<T>())
+
+fun <T : Comparable<T>> Table.customReference(
+    name: String,
+    foreignTable: Column<T>,
+    onDelete: ReferenceOption = ReferenceOption.NO_ACTION,
+    onUpdate: ReferenceOption = ReferenceOption.NO_ACTION,
+): Column<T> {
+    val column = registerColumn<T>(name, foreignTable.columnType)
+    foreignKey(
+        column to foreignTable,
+        onDelete = onDelete,
+        onUpdate = onUpdate,
+    )
+    return column
+}
