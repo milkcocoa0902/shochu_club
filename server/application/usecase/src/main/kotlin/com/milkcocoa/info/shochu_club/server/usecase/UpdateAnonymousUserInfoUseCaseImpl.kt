@@ -4,7 +4,6 @@ import com.milkcocoa.info.shochu_club.server.domain.model.Account
 import com.milkcocoa.info.shochu_club.server.domain.service.AccountService
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-import kotlin.uuid.toJavaUuid
 
 class UpdateAnonymousUserInfoUseCaseImpl(
     private val accountService: AccountService,

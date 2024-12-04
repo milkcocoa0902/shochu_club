@@ -18,7 +18,6 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.Is
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.UserName
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid

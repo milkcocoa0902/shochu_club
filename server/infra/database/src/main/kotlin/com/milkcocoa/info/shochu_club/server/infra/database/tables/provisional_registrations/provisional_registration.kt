@@ -2,7 +2,6 @@ package com.milkcocoa.info.shochu_club.server.infra.database.tables.provisional_
 
 import com.milkcocoa.info.shochu_club.server.infra.database.column.integerValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.column.stringValueObject
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.AuthProvider
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.Email
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.PasswordHash
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid

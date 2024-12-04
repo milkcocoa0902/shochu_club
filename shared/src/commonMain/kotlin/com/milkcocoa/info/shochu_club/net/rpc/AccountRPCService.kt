@@ -1,12 +1,9 @@
 package com.milkcocoa.info.shochu_club.net.rpc
 
-import com.milkcocoa.info.shochu_club.net.client.ktorRpcClient
-import com.milkcocoa.info.shochu_club.models.AccountIdentifier
-import com.milkcocoa.info.shochu_club.models.IdTokenAccountIdentifier
 import com.milkcocoa.info.shochu_club.models.SystemUid
 import com.milkcocoa.info.shochu_club.models.details.Result
-import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserDetail
 import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserSummary
+import com.milkcocoa.info.shochu_club.net.client.ktorRpcClient
 import kotlinx.rpc.RemoteService
 import kotlinx.rpc.annotations.Rpc
 import kotlinx.rpc.withService

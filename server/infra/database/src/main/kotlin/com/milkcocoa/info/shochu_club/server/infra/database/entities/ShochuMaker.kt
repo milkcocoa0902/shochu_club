@@ -4,7 +4,7 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_maker.
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import java.util.UUID
+import java.util.*
 
 class ShochuMaker(id: EntityID<UUID>): UUIDEntity(id) {
     companion object: UUIDEntityClass<ShochuMaker>(shochu_maker)

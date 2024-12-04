@@ -2,8 +2,6 @@ package com.milkcocoa.info.shochu_club.server.cache
 
 import com.milkcocoa.info.shochu_club.server.domain.repository.CacheRepository
 import redis.clients.jedis.Jedis
-import redis.clients.jedis.JedisPool
-import java.util.concurrent.TimeUnit
 
 class RedisCacheRepository(
     private val host: String,

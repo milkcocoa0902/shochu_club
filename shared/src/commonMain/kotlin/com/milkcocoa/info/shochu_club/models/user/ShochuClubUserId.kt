@@ -2,7 +2,6 @@ package com.milkcocoa.info.shochu_club.models.user
 
 
 import com.milkcocoa.info.shochu_club.serializers.UuidSerializer
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber

@@ -1,6 +1,5 @@
 package com.milkcocoa.info.shochu_club.server.domain.model
 
-import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

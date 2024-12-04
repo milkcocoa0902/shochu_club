@@ -1,12 +1,10 @@
 package com.milkcocoa.info.shochu_club.server.infra.database.entities
 
-import com.milkcocoa.info.shochu_club.server.infra.database.entities.ShochuClubUser.Companion.referrersOn
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.sohchu_club_user.shochu_club_user
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import java.util.UUID
+import java.util.*
 
 class ShochuClubUser(
     id: EntityID<UUID>,

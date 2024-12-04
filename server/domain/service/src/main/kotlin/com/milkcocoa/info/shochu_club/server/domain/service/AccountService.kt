@@ -1,8 +1,7 @@
 package com.milkcocoa.info.shochu_club.server.domain.service
 
-import com.milkcocoa.info.shochu_club.server.domain.model.*
+import com.milkcocoa.info.shochu_club.server.domain.model.Account
 import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
-import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

@@ -1,7 +1,7 @@
 package com.milkcocoa.info.shochu_club.server.domain.model
 
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 data class User(
     val userId: UUID,

@@ -1,11 +1,13 @@
 package com.milkcocoa.info.shochu_club.server.infla.mail
 
 import com.milkcocoa.info.shochu_club.server.domain.repository.MailBackend
-import jakarta.mail.*
+import jakarta.mail.Message
+import jakarta.mail.Session
+import jakarta.mail.Transport
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
 import java.io.Closeable
-import java.util.LinkedList
+import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 

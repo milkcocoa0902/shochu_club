@@ -3,7 +3,7 @@ package com.milkcocoa.info.shochu_club.server.infra.database.column
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table
 import java.nio.ByteBuffer
-import java.util.UUID
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
