@@ -1,7 +1,7 @@
 package com.milkcocoa.info.shochu_club.server.domain.repository
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
-import com.milkcocoa.info.shochu_club.server.domain.model.ProvisionedUser
+import com.milkcocoa.info.shochu_club.server.domain.model.Account
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import com.milkcocoa.info.shochu_club.server.domain.model.type.DeleteReasonValue
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -23,13 +23,13 @@ interface AccountRepository {
      * 匿名ユーザをシステムに登録する
      *
      * @param systemUid[UUID] 匿名ユーザ、正会員を通して一意なID
-     * @return [AccountSummary] 会員情報サマリ
+     * @return [Account.AnonymousUser] 会員情報サマリ
      *
      */
     @OptIn(ExperimentalUuidApi::class)
     suspend fun createUserAnonymously(
         systemUid: Uuid,
-    ): AccountSummary
+    ): Account.AnonymousUser
 
     /**
      * 匿名ユーザの情報をアップデートする
@@ -42,34 +42,34 @@ interface AccountRepository {
         systemUid: Uuid,
         nickname: String,
         comment: String,
-    ): AccountSummary
+    ): Account.AnonymousUser
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun provisionalSignUpFromAnonymousUser(
         systemUid: Uuid,
         email: String,
         passwordHash: String,
-        authProvider: Int
-    ): ProvisionedUser
+        authProvider: AuthProviderType
+    ): Account.ProvisionedUser
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun createAuthenticatedUser(
         systemUid: Uuid,
         email: String,
         passwordHash: String,
-        authProvider: Int
-    ): AccountSummary
+        authProvider: AuthProviderType
+    ): Account.AuthenticatedUser
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun updateUsername(systemUid: Uuid, username: String): Unit
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun findUserInformationByUid(systemUid: Uuid): AccountSummary?
+    suspend fun findUserInformationByUid(systemUid: Uuid): Account?
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun updateUserInformation(systemUid: Uuid, nickname: String, comment: String): AccountSummary
+    suspend fun updateUserInformation(systemUid: Uuid, nickname: String, comment: String): Account
 
-    suspend fun findProvisionedUserByEmail(email: String): ProvisionedUser?
+    suspend fun findProvisionedUserByEmail(email: String): Account.ProvisionedUser?
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun promoteSystemUidIntoAuthenticated(systemUid: Uuid): Unit

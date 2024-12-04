@@ -1,21 +1,20 @@
 package com.milkcocoa.info.shochu_club.server.domain.service
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
-import com.milkcocoa.info.shochu_club.server.domain.model.IdToken
-import com.milkcocoa.info.shochu_club.server.domain.model.ProvisionedUser
-import com.milkcocoa.info.shochu_club.server.domain.model.User
+import com.milkcocoa.info.shochu_club.server.domain.model.*
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 interface AccountService {
-    suspend fun signUpAnonymously(): AccountSummary
+    suspend fun signUpAnonymously(): Account.AnonymousUser
+
     @OptIn(ExperimentalUuidApi::class)
     suspend fun updateAnonymousUserInformation(
         systemUid: Uuid,
         nickname: String,
         comment: String
-    ): AccountSummary
+    ): Account.AnonymousUser
 
     /**
      *
@@ -25,15 +24,15 @@ interface AccountService {
         systemUid: Uuid,
         email: String,
         passwordRaw: String,
-        authProvider: Int
-    ): ProvisionedUser
+        authProvider: AuthProviderType
+    ): Account.ProvisionedUser
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun updateUsername(systemUid: Uuid, username: String): AccountSummary
+    suspend fun updateUsername(systemUid: Uuid, username: String): Account
 
     suspend fun promoteProvisionedUser(
         email: String,
         passwordRaw: String,
         confirmationCode: String,
-    ): AccountSummary
+    ): Account.AuthenticatedUser
 }

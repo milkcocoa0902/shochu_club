@@ -1,15 +1,14 @@
 package com.milkcocoa.info.shochu_club.server.presentation.controller
 
 import com.milkcocoa.info.application.controller.AccountController
-import com.milkcocoa.info.shochu_club.models.AccountIdentifier
-import com.milkcocoa.info.shochu_club.models.IdTokenAccountIdentifier
 import com.milkcocoa.info.shochu_club.models.SystemUid
 import com.milkcocoa.info.shochu_club.models.details.ErrorMessage
 import com.milkcocoa.info.shochu_club.models.details.Result
-import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserDetail
 import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserId
 import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserSummary
-import com.milkcocoa.info.shochu_club.services.AccountManagementRPCService
+import com.milkcocoa.info.shochu_club.net.rpc.AccountManagementRPCService
+import com.milkcocoa.info.shochu_club.server.domain.model.Account
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.koin.java.KoinJavaComponent.inject
 import java.time.LocalDateTime
@@ -21,15 +20,6 @@ class AccountManagementRPCServiceImpl(
 ) : AccountManagementRPCService {
     private val accountController: AccountController by inject(AccountController::class.java)
 
-    override suspend fun checkAccountExistence(identifier: AccountIdentifier): Boolean = true
-
-    override suspend fun signInWithEmail(idToken: IdTokenAccountIdentifier): Result<ShochuClubUserDetail>{
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun signInWithGoogle(idToken: IdTokenAccountIdentifier): Result<ShochuClubUserDetail> {
-        TODO("Not yet implemented")
-    }
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun signInAnonymously(): Result<ShochuClubUserSummary.AnonymousUser> {
@@ -53,38 +43,18 @@ class AccountManagementRPCServiceImpl(
         }
     }
 
-    override suspend fun signin(identifier: AccountIdentifier) {
-        println("sign in")
-    }
-
-    override suspend fun signupWithEmail(idToken: IdTokenAccountIdentifier): Result<ShochuClubUserDetail> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun logout(identifier: AccountIdentifier) {
-        println("logout")
-    }
-
-    override suspend fun deleteAccount(
-        identifier: AccountIdentifier,
-        deleteAccountToken: String,
-    ) {
-        println("deleteAccount")
-    }
-
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun provisioningAnonymousAccount(
         systemUid: SystemUid,
         email: String,
         passwordRaw: String,
-        authProvider: Int
     ): Result<ShochuClubUserSummary.ProvisionedUser> {
         return kotlin.runCatching {
             val user = accountController.provisioningAnonymousAccount(
                 systemUid = systemUid.uid,
                 email = email,
                 passwordRaw = passwordRaw,
-                authProvider = authProvider
+                authProvider = AuthProviderType.EmailAndPassword
             )
             return@runCatching Result.Success(
                 ShochuClubUserSummary.ProvisionedUser(provisionedUserId = user.provisionedUserId)
@@ -134,20 +104,36 @@ class AccountManagementRPCServiceImpl(
         systemUid: SystemUid,
         username: String
     ): Result<ShochuClubUserSummary> {
-
         return kotlin.runCatching {
             val user = accountController.updateUserName(
                 systemUid = systemUid.uid,
                 username = username
             )
-            return@runCatching Result.Success(
-                ShochuClubUserSummary.AnonymousUser(
-                    shochuClubUserId = ShochuClubUserId(value = user.systemUid),
-                    nickname = user.nickName,
-                    iconUrl = user.iconUrl,
-                    registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
-                )
-            )
+            when(user){
+                is Account.AnonymousUser ->{
+                    return@runCatching Result.Success(
+                        ShochuClubUserSummary.AnonymousUser(
+                            shochuClubUserId = ShochuClubUserId(value = user.systemUid),
+                            nickname = user.nickName,
+                            iconUrl = user.iconUrl,
+                            registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
+                        )
+                    )
+                }
+                is Account.AuthenticatedUser ->{
+                    return@runCatching Result.Success(
+                        ShochuClubUserSummary.AuthenticatedUser(
+                            shochuClubUserId = ShochuClubUserId(value = user.systemUid),
+                            nickname = user.userName,
+                            iconUrl = user.iconUrl,
+                            registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
+                        )
+                    )
+                }
+                is Account.ProvisionedUser ->{
+                    error("")
+                }
+            }
         }.getOrElse {
             println(it)
             Result.Failure(

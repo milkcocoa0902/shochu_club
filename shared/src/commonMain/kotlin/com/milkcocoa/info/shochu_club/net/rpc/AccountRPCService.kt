@@ -1,6 +1,6 @@
-package com.milkcocoa.info.shochu_club.services
+package com.milkcocoa.info.shochu_club.net.rpc
 
-import com.milkcocoa.info.shochu_club.client.ktorRpcClient
+import com.milkcocoa.info.shochu_club.net.client.ktorRpcClient
 import com.milkcocoa.info.shochu_club.models.AccountIdentifier
 import com.milkcocoa.info.shochu_club.models.IdTokenAccountIdentifier
 import com.milkcocoa.info.shochu_club.models.SystemUid
@@ -14,23 +14,14 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @Rpc
 interface AccountManagementRPCService : RemoteService {
-    suspend fun checkAccountExistence(
-        identifier: AccountIdentifier
-    ): Boolean
-
-    suspend fun signInWithEmail(
-        idToken: IdTokenAccountIdentifier
-    ): Result<ShochuClubUserDetail>
-
-    suspend fun signInWithGoogle(
-        idToken: IdTokenAccountIdentifier
-    ): Result<ShochuClubUserDetail>
-
     /**
      * システムでベアラートークンを発行する
      */
     suspend fun signInAnonymously(): Result<ShochuClubUserSummary.AnonymousUser>
 
+    /**
+     * 匿名ユーザのアカウント情報を更新する
+     */
     @OptIn(ExperimentalUuidApi::class)
     suspend fun updateAnonymousUserInfo(
         systemUid: SystemUid,
@@ -38,37 +29,28 @@ interface AccountManagementRPCService : RemoteService {
         comment: String
     ): Result<ShochuClubUserSummary.AnonymousUser>
 
+    /**
+     * Uidに紐づく情報＝ユーザIDを更新する
+     */
     @OptIn(ExperimentalUuidApi::class)
     suspend fun updateUserName(
         systemUid: SystemUid,
         username: String
     ): Result<ShochuClubUserSummary>
 
-
-    suspend fun signin(
-        identifier: AccountIdentifier
-    )
-
-    suspend fun signupWithEmail(
-        idToken: IdTokenAccountIdentifier
-    ): Result<ShochuClubUserDetail>
-
-    suspend fun logout(
-        identifier: AccountIdentifier
-    )
-
-    suspend fun deleteAccount(
-        identifier: AccountIdentifier,
-        deleteAccountToken: String,
-    )
-
+    /**
+     * 匿名ユーザから、メアド&パスワードのアカウントの仮登録をする、
+     * 仮登録とは、メールアドレスを検証する行為。つまり、SSOのユーザは対象外
+     */
     suspend fun provisioningAnonymousAccount(
         systemUid: SystemUid,
         email: String,
         passwordRaw: String,
-        authProvider: Int
     ): Result<ShochuClubUserSummary.ProvisionedUser>
 
+    /**
+     * 仮登録アカウント=メアド&パスワードのアカウントを検証する。
+     */
     suspend fun promoteProvisionedAccount(
         email: String,
         passwordRaw: String,

@@ -1,7 +1,7 @@
 package com.milkcocoa.info.shochu_club.server.infra.database.repository
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
-import com.milkcocoa.info.shochu_club.server.domain.model.ProvisionedUser
+import com.milkcocoa.info.shochu_club.server.domain.model.Account
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import com.milkcocoa.info.shochu_club.server.domain.model.type.DeleteReasonValue
 import com.milkcocoa.info.shochu_club.server.domain.repository.AccountRepository
 import com.milkcocoa.info.shochu_club.server.infra.database.entities.AnonymousUser
@@ -45,7 +45,7 @@ class AccountRepositoryImpl(): AccountRepository {
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createUserAnonymously(systemUid: Uuid): AccountSummary {
+    override suspend fun createUserAnonymously(systemUid: Uuid): Account.AnonymousUser {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
 
         val anonymousUser = AnonymousUser.new {
@@ -58,9 +58,8 @@ class AccountRepositoryImpl(): AccountRepository {
             this.deletedAt = null
         }
 
-        return AccountSummary(
+        return Account.AnonymousUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
-            isAnonymous = 1,
             userName = systemUser.username.value,
             iconUrl = "",
             comment = anonymousUser.comment.value,
@@ -74,8 +73,8 @@ class AccountRepositoryImpl(): AccountRepository {
         systemUid: Uuid,
         email: String,
         passwordHash: String,
-        authProvider: Int
-    ) : ProvisionedUser{
+        authProvider: AuthProviderType
+    ) : Account.ProvisionedUser {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
 
         val provisionalRegistration = ProvisionalRegistration.new {
@@ -86,7 +85,7 @@ class AccountRepositoryImpl(): AccountRepository {
             this.registrationType = RegistrationType(1)
         }
 
-        return ProvisionedUser(
+        return Account.ProvisionedUser(
             provisionedUserId = provisionalRegistration.id.value.toKotlinUuid(),
             systemUid = provisionalRegistration.systemUid.id.value.toKotlinUuid(),
             email = provisionalRegistration.email.value,
@@ -99,8 +98,8 @@ class AccountRepositoryImpl(): AccountRepository {
         systemUid: Uuid,
         email: String,
         passwordHash: String,
-        authProvider: Int
-    ): AccountSummary {
+        authProvider: AuthProviderType
+    ): Account.AuthenticatedUser {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
         val account = ShochuClubUser.new {
             this.systemUid = systemUser
@@ -122,9 +121,8 @@ class AccountRepositoryImpl(): AccountRepository {
             this.updatedAt = LocalDateTime.now().toKotlinLocalDateTime()
             this.lastLoginAt = LocalDateTime.now().toKotlinLocalDateTime()
         }
-        return AccountSummary(
+        return Account.AuthenticatedUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
-            isAnonymous = 1,
             userName = systemUser.username.value,
             iconUrl = "",
             comment = account.comment.value,
@@ -144,13 +142,12 @@ class AccountRepositoryImpl(): AccountRepository {
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun findUserInformationByUid(
         systemUid: Uuid
-    ): AccountSummary? {
+    ): Account? {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
         if(systemUser.isAnonymousUser.value){
             val anonymousUser = AnonymousUser.find { anonymous_user.uid eq systemUser.id.value }.first()
-            return AccountSummary(
+            return Account.AnonymousUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
-                isAnonymous = 1,
                 userName = systemUser.username.value,
                 iconUrl = "",
                 comment = anonymousUser.comment.value,
@@ -158,9 +155,8 @@ class AccountRepositoryImpl(): AccountRepository {
             )
         }else{
             val authenticatedUser = ShochuClubUser.find { shochu_club_user.uid eq systemUser.id.value }.first()
-            return AccountSummary(
+            return Account.AuthenticatedUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
-                isAnonymous = 1,
                 userName = systemUser.username.value,
                 iconUrl = "",
                 comment = authenticatedUser.comment.value,
@@ -174,30 +170,42 @@ class AccountRepositoryImpl(): AccountRepository {
         systemUid: Uuid,
         nickname: String,
         comment: String
-    ): AccountSummary {
+    ): Account {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
 
-        val authenticatedUser = ShochuClubUser.find { shochu_club_user.uid eq systemUser.id.value }.first()
-        authenticatedUser.nickName = NickName(nickname)
-        authenticatedUser.comment = Comment(comment)
+        if(systemUser.isAnonymousUser.value){
+            val anonymousUser = AnonymousUser.find { anonymous_user.uid eq systemUser.id.value }.first()
+            anonymousUser.comment = Comment(comment)
+            anonymousUser.nickname = NickName(nickname)
 
+            return Account.AnonymousUser(
+                systemUid = systemUser.id.value.toKotlinUuid(),
+                userName = systemUser.username.value,
+                iconUrl = "",
+                comment = anonymousUser.comment.value,
+                nickName = anonymousUser.nickname.value,
+            )
+        }else{
+            val authenticatedUser = ShochuClubUser.find { shochu_club_user.uid eq systemUser.id.value }.first()
+            authenticatedUser.comment = Comment(comment)
+            authenticatedUser.nickName = NickName(nickname)
 
-        return AccountSummary(
-            systemUid = systemUser.id.value.toKotlinUuid(),
-            isAnonymous = 1,
-            userName = systemUser.username.value,
-            iconUrl = "",
-            comment = authenticatedUser.comment.value,
-            nickName = authenticatedUser.nickName.value,
-        )
+            return Account.AuthenticatedUser(
+                systemUid = systemUser.id.value.toKotlinUuid(),
+                userName = systemUser.username.value,
+                iconUrl = "",
+                comment = authenticatedUser.comment.value,
+                nickName = authenticatedUser.nickName.value,
+            )
+        }
     }
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun findProvisionedUserByEmail(
         email: String
-    ): ProvisionedUser? {
+    ): Account.ProvisionedUser? {
         return ProvisionalRegistration.find { provisional_registration.email eq Email(email) }.firstOrNull()?.let {
-            ProvisionedUser(
+            Account.ProvisionedUser(
                 provisionedUserId = it.id.value.toKotlinUuid(),
                 systemUid = it.systemUid.id.value.toKotlinUuid(),
                 email = it.email.value,
@@ -218,7 +226,7 @@ class AccountRepositoryImpl(): AccountRepository {
         systemUid: Uuid,
         nickname: String,
         comment: String
-    ): AccountSummary {
+    ): Account.AnonymousUser {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
 
         val anonymousUser = AnonymousUser.find { anonymous_user.uid eq systemUser.id.value }.first()
@@ -226,9 +234,8 @@ class AccountRepositoryImpl(): AccountRepository {
         anonymousUser.comment = Comment(comment)
 
 
-        return AccountSummary(
+        return Account.AnonymousUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
-            isAnonymous = 1,
             userName = systemUser.username.value,
             iconUrl = "",
             comment = anonymousUser.comment.value,

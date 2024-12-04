@@ -1,9 +1,7 @@
 package com.milkcocoa.info.application.controller
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
-import com.milkcocoa.info.shochu_club.server.domain.model.IdToken
-import com.milkcocoa.info.shochu_club.server.domain.model.ProvisionedUser
-import com.milkcocoa.info.shochu_club.server.domain.model.User
+import com.milkcocoa.info.shochu_club.server.domain.model.*
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -12,33 +10,33 @@ interface AccountController {
 
     suspend fun signInWithGoogle(credential: IdToken): User
 
-    suspend fun signInAnonymously(): AccountSummary
+    suspend fun signInAnonymously(): Account.AnonymousUser
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun updateAnonymousUserInfo(
         systemUid: Uuid,
         nickname: String,
         comment: String
-    ): AccountSummary
+    ): Account.AnonymousUser
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun updateUserName(
         systemUid: Uuid,
         username: String,
-    ): AccountSummary
+    ): Account
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun provisioningAnonymousAccount(
         systemUid: Uuid,
         email: String,
         passwordRaw: String,
-        authProvider: Int
-    ): ProvisionedUser
+        authProvider: AuthProviderType
+    ): Account.ProvisionedUser
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun promoteProvisionedAccount(
         email: String,
         passwordRaw: String,
         confirmationCode: String
-    ): AccountSummary
+    ): Account.AuthenticatedUser
 }

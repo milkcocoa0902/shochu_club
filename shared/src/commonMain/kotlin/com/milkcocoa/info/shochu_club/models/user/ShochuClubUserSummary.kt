@@ -16,7 +16,7 @@ import kotlin.uuid.Uuid
 
 
 @Serializable
-sealed class ShochuClubUserSummary: ResponseDataEntity{
+sealed class ShochuClubUserSummary: ResponseDataEntity {
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     data class AnonymousUser(

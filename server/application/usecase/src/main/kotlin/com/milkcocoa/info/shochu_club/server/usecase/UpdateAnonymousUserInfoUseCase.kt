@@ -1,6 +1,6 @@
 package com.milkcocoa.info.shochu_club.server.usecase
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
+import com.milkcocoa.info.shochu_club.server.domain.model.Account
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -10,5 +10,5 @@ interface UpdateAnonymousUserInfoUseCase {
         systemUid: Uuid,
         nickname: String,
         comment: String,
-    ): AccountSummary
+    ): Account.AnonymousUser
 }

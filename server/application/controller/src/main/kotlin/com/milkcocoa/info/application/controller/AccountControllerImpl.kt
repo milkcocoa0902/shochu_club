@@ -1,9 +1,7 @@
 package com.milkcocoa.info.application.controller
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
-import com.milkcocoa.info.shochu_club.server.domain.model.IdToken
-import com.milkcocoa.info.shochu_club.server.domain.model.ProvisionedUser
-import com.milkcocoa.info.shochu_club.server.domain.model.User
+import com.milkcocoa.info.shochu_club.server.domain.model.*
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import com.milkcocoa.info.shochu_club.server.usecase.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -23,17 +21,17 @@ class AccountControllerImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun signInAnonymously(): AccountSummary {
+    override suspend fun signInAnonymously(): Account.AnonymousUser {
         return createUserAnonymouslyUseCase.execute()
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun updateAnonymousUserInfo(systemUid: Uuid, nickname: String, comment: String): AccountSummary {
+    override suspend fun updateAnonymousUserInfo(systemUid: Uuid, nickname: String, comment: String): Account.AnonymousUser {
         return updateAnonymousUserInfoUseCase.execute(systemUid, nickname, comment)
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun updateUserName(systemUid: Uuid, username: String): AccountSummary {
+    override suspend fun updateUserName(systemUid: Uuid, username: String): Account {
         return updateUserNameUseCase.execute(systemUid, username)
     }
 
@@ -42,8 +40,8 @@ class AccountControllerImpl(
         systemUid: Uuid,
         email: String,
         passwordRaw: String,
-        authProvider: Int
-    ): ProvisionedUser {
+        authProvider: AuthProviderType
+    ): Account.ProvisionedUser {
         return provisioningAnonymousAccountUseCase.execute(systemUid, email, passwordRaw, authProvider)
     }
 
@@ -51,7 +49,7 @@ class AccountControllerImpl(
         email: String,
         passwordRaw: String,
         confirmationCode: String
-    ): AccountSummary {
+    ): Account.AuthenticatedUser {
         return promoteProvisionedAccountUseCase.execute(email, passwordRaw, confirmationCode)
     }
 }

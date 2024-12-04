@@ -1,7 +1,7 @@
 package com.milkcocoa.info.shochu_club.server.service
 
-import com.milkcocoa.info.shochu_club.server.domain.model.AccountSummary
-import com.milkcocoa.info.shochu_club.server.domain.model.ProvisionedUser
+import com.milkcocoa.info.shochu_club.server.domain.model.Account
+import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import com.milkcocoa.info.shochu_club.server.domain.model.type.DeleteReasonValue
 import com.milkcocoa.info.shochu_club.server.domain.repository.AccountRepository
 import com.milkcocoa.info.shochu_club.server.domain.repository.CacheRepository
@@ -19,7 +19,7 @@ class AccountServiceImpl(
     private val mailBackend: MailBackend
 ): AccountService {
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun signUpAnonymously(): AccountSummary {
+    override suspend fun signUpAnonymously(): Account.AnonymousUser {
         return newSuspendedTransaction {
             val systemUid = accountRepository.issueSystemUid(anonymously = true)
             return@newSuspendedTransaction accountRepository.createUserAnonymously(systemUid)
@@ -31,7 +31,7 @@ class AccountServiceImpl(
         systemUid: Uuid,
         nickname: String,
         comment: String
-    ): AccountSummary {
+    ): Account.AnonymousUser {
         return newSuspendedTransaction {
             return@newSuspendedTransaction accountRepository.updateUserInfoAnonymously(
                 systemUid = systemUid,
@@ -42,7 +42,7 @@ class AccountServiceImpl(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun updateUsername(systemUid: Uuid, username: String): AccountSummary {
+    override suspend fun updateUsername(systemUid: Uuid, username: String): Account {
         return newSuspendedTransaction {
             accountRepository.updateUsername(
                 systemUid = systemUid,
@@ -58,8 +58,8 @@ class AccountServiceImpl(
         systemUid: Uuid,
         email: String,
         passwordRaw: String,
-        authProvider: Int
-    ): ProvisionedUser {
+        authProvider: AuthProviderType
+    ): Account.ProvisionedUser {
         val mem = 65_536
         val iteration = 15
         val parallelism = 3
@@ -130,7 +130,7 @@ class AccountServiceImpl(
         email: String,
         passwordRaw: String,
         confirmationCode: String
-    ): AccountSummary {
+    ): Account.AuthenticatedUser {
         return newSuspendedTransaction {
             if(accountRepository.checkUserExists(email)){
                 // すでに性会員登録されているメアドの場合はそもそも仮登録不可
@@ -174,7 +174,7 @@ class AccountServiceImpl(
                 systemUid = systemUid,
                 email = provisionedUser.email,
                 passwordHash = provisionedUser.passwordHash,
-                authProvider = 1
+                authProvider = AuthProviderType.EmailAndPassword
             )
 
 
@@ -182,9 +182,10 @@ class AccountServiceImpl(
             // 匿名ユーザもニックネームとコメントを持っているので、認証済みユーザにコピーする
             val account = accountRepository.updateUserInformation(
                 systemUid = systemUid,
-                nickname = anonymousUserInfo?.nickName ?: "",
-                comment = anonymousUserInfo?.comment ?: "",
-            )
+                nickname = (anonymousUserInfo as? Account.AnonymousUser)?.nickName ?: "",
+                comment = (anonymousUserInfo as? Account.AnonymousUser)?.comment ?: "",
+            ) as Account.AuthenticatedUser
+
             // 仮登録アカウントを削除する
             accountRepository.deleteProvisionedUserIfExists(email = provisionedUser.email)
 
