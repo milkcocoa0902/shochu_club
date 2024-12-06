@@ -78,3 +78,5 @@ include("server:infra:mail")
 findProject(":server:infra:mail")?.name = "mail"
 include("server:infra:cache")
 findProject(":server:infra:cache")?.name = "cache"
+include("server:infra:aws")
+findProject(":server:infra:aws")?.name = "aws"

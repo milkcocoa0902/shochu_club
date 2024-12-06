@@ -5,8 +5,12 @@ plugins {
 group = "com.milkcocoa.info.shochu_club.server.infla"
 version = "unspecified"
 
+
 dependencies {
-    implementation(libs.jedis)
+    implementation(platform(libs.aws.bom))
+    implementation(libs.aws.s3)
+    implementation(libs.aws.cloudfront)
+
     implementation(projects.server.domain.repository)
     testImplementation(kotlin("test"))
 }
