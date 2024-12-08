@@ -120,9 +120,15 @@ dependencies {
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries)
 
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
-    implementation("com.firebaseui:firebase-ui-auth:7.2.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.ui.auth)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+
+    implementation(libs.kotlinx.datetime)
 }

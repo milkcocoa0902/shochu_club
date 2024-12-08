@@ -40,13 +40,9 @@ kotlin {
             // put your Multiplatform dependencies here
             implementation(libs.kotlinx.rpc.core)
             implementation(libs.kotlinx.rpc.krpc.serialization.core)
-            implementation(libs.kotlinx.rpc.krpc.serialization.json)
             implementation(libs.kotlinx.rpc.krpc.serialization.protobuf)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
-
-            implementation(libs.kotlinx.serialization.core)
-
 
             implementation(libs.kotlinx.rpc.krpc.client)
             implementation(libs.kotlinx.rpc.krpc.ktor.client)
