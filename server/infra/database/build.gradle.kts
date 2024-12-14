@@ -20,7 +20,7 @@ dependencies {
     implementation(libs.flyway.core)
     implementation(libs.flyway.mysql)
     testImplementation(kotlin("test"))
-
+    implementation(libs.kotlinx.datetime)
 }
 
 tasks.test {

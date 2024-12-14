@@ -7,6 +7,7 @@ version = "unspecified"
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation(libs.kotlinx.datetime)
 }
 
 tasks.test {
