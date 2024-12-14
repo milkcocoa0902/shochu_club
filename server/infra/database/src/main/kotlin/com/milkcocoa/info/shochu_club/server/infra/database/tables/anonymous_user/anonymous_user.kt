@@ -8,7 +8,7 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.NickNa
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 object anonymous_user: UUIDTable("anonymous_user", "id") {
     val uid = reference(
@@ -20,8 +20,8 @@ object anonymous_user: UUIDTable("anonymous_user", "id") {
     val nickname = stringValueObject<NickName>("nickname")
     val comment = stringValueObject<Comment>("comment")
     val delete_reason = integerValueObject<DeleteReason>("delete_reason").nullable()
-    val createdAt = datetime("created_at")
-    val updatedAt = datetime("updated_at")
-    val deletedAt = datetime("deleted_at").nullable()
+    val createdAt = timestampWithTimeZone("created_at")
+    val updatedAt = timestampWithTimeZone("updated_at")
+    val deletedAt = timestampWithTimeZone("deleted_at").nullable()
 
 }

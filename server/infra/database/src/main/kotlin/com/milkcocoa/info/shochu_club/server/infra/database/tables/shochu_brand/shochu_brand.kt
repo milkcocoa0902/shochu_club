@@ -6,7 +6,7 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.iamge_resourc
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_maker.shochu_maker
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 class BrandName(value: String): ValueObject<String>(value)
 
@@ -28,6 +28,6 @@ object shochu_brand: UUIDTable("shochu_brand", "brand_id") {
         onUpdate = ReferenceOption.CASCADE
     )
 
-    val createdAt = datetime("created_at")
-    val updatedAt = datetime("updated_at")
+    val createdAt = timestampWithTimeZone("created_at")
+    val updatedAt = timestampWithTimeZone("updated_at")
 }

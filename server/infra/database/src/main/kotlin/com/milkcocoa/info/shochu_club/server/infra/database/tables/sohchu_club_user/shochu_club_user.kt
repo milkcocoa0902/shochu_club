@@ -10,7 +10,7 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.sy
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.date
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 
 @SuppressWarnings("ktlint:standard:class-naming", "standard:class-naming")
@@ -25,7 +25,7 @@ object shochu_club_user : UUIDTable("shochu_club_user", "id") {
     val email = stringValueObject<Email>("email")
     val isEmailVerified = booleanValueObject<IsEmailVerified>("is_email_verified")
     val passwordHash = stringValueObject<PasswordHash>("password_hash")
-    val passwordChangedAt = datetime("password_changed_at")
+    val passwordChangedAt = timestampWithTimeZone("password_changed_at")
     val failedLoginAttempts = integerValueObject<FailedLoginAttempt>("failed_login_attempts")
     val authProvider = integerValueObject<AuthProvider>("auth_provider")
     val isEnabled = booleanValueObject<IsEnabled>("is_enabled")
@@ -42,9 +42,9 @@ object shochu_club_user : UUIDTable("shochu_club_user", "id") {
         onDelete = ReferenceOption.SET_NULL,
         onUpdate = ReferenceOption.CASCADE
     ).nullable()
-    val createdAt = datetime("created_at")
-    val updatedAt = datetime("updated_at")
-    val lastLoginAt = datetime("last_login_at").nullable()
-    val accountDisabledAt = datetime("account_disabled_at").nullable()
-    val accountDeletedAt = datetime("account_deleted_at").nullable()
+    val createdAt = timestampWithTimeZone("created_at")
+    val updatedAt = timestampWithTimeZone("updated_at")
+    val lastLoginAt = timestampWithTimeZone("last_login_at").nullable()
+    val accountDisabledAt = timestampWithTimeZone("account_disabled_at").nullable()
+    val accountDeletedAt = timestampWithTimeZone("account_deleted_at").nullable()
 }

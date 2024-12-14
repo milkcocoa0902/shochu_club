@@ -7,7 +7,7 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.Passwo
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 object provisional_registration: UUIDTable("provisional_registration", "id") {
     val uid = reference(
@@ -20,6 +20,6 @@ object provisional_registration: UUIDTable("provisional_registration", "id") {
     val email = stringValueObject<Email>("email")
     val password_hash = stringValueObject<PasswordHash>("password_hash")
     val registration_type = integerValueObject<RegistrationType>("registration_type")
-    val created_at = datetime("created_at")
+    val created_at = timestampWithTimeZone("created_at")
 
 }
