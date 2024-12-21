@@ -1,4 +1,4 @@
-package com.milkcocoa.info.evessa_fan_app.server.infra.database
+package com.milkcocoa.info.shochu_club.server.infra.database
 
 import javax.sql.DataSource
 
@@ -10,6 +10,10 @@ enum class DatabaseDriver(
         driverClassName = "org.mariadb.jdbc.Driver",
         connectionUrlSchema = "jdbc:mariadb",
     ),
+    JdbcPostgres(
+        driverClassName = "org.postgresql.Driver",
+        connectionUrlSchema = "jdbc:postgresql",
+    )
 }
 
 interface DataBaseConnectionInfo {
@@ -18,10 +22,11 @@ interface DataBaseConnectionInfo {
     val dbHost: String
     val dbPort: Int
     val dbUser: String
-    val dbPassword: String
-    val poolSize: Int
+    var dbPassword: String
 
     fun dataSource(): DataSource
 
     fun connect(): Unit
+
+    fun updatePassword(password: String)
 }
