@@ -3,7 +3,7 @@ package com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_maker
 import com.milkcocoa.info.shochu_club.server.infra.database.column.ValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.column.integerValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.column.stringValueObject
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.iamge_resource.image_resource
+import com.milkcocoa.info.shochu_club.server.infra.database.tables.profile_image_resource.profile_image_resource
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
@@ -27,7 +27,7 @@ object shochu_maker: UUIDTable("shochu_maker", "maker_id") {
     val makerArea = integerValueObject<MakerArea>("maker_area")
     val mainMakerImageResource = reference(
         "main_maker_image_resource",
-        image_resource,
+        profile_image_resource,
         onUpdate = ReferenceOption.CASCADE,
         onDelete = ReferenceOption.SET_NULL,
     ).nullable()

@@ -1,14 +1,18 @@
 services:
   db:
-    image: mariadb:10.11.6-jammy
+    image: postgres:17.2-alpine3.21
     ports:
       # ポート設定
-      - '${MARIADB_EXPOSED_PORT}:3306'
+      - '${API_DB_EXPOSED_PORT}:5432'
     env_file:
       - .env
     environment:
       # タイムゾーン
-      TZ: Asia/Tokyo
+      TZ: UTC
+      POSTGRES_PASSWORD: "$API_DB_PASSWORD"
+      POSTGRES_USER: "$API_DB_USER"
+      POSTGRES_DB: "$API_DB_DATABASE"
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --no-locale"
     volumes:
       - type: bind
         source: ./environment/initsql
