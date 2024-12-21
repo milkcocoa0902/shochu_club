@@ -12,6 +12,7 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 argon2Jvm = "2.11"
 aws-bom = "2.27.21"
+aws-sdk-kotlin = "1.3.94"
 coilCompose = "3.0.4"
 compose="1.6.8"
 compose-plugin = "1.6.11"
@@ -38,12 +39,12 @@ aboutlibraries-core="10.10.0"
 kotlinx-serialization = "1.7.3"
 kotlinx-rpc = "0.4.0"
 junitJupiter = "5.8.1"
+postgresql = "42.7.4"
 
 [libraries]
 aboutlibraries = { module = "com.mikepenz:aboutlibraries", version.ref = "aboutlibraries-core" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries-core" }
 argon2-jvm = { module = "de.mkammerer:argon2-jvm", version.ref = "argon2Jvm" }
-aws-bom = { module = "software.amazon.awssdk:bom", version.ref = "aws-bom" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenvKotlin" }
@@ -57,6 +58,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 firebase-ui-auth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywayCore" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref="flywayCore" }
 flyway-mysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flywayCore" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 
@@ -93,6 +95,7 @@ ktor-server-tests = { module = "io.ktor:ktor-server-tests" }
 
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 kotlinx-serialization-core = { module="org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref="kotlinx-serialization" }
+kotlinx-serialization-json = { module="org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref="kotlinx-serialization" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-android-gradle-plugin" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-android-gradle-plugin" }
@@ -109,8 +112,12 @@ kotlinx-rpc-krpc-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-
 kotlinx-rpc-krpc-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-core", version.ref = "kotlinx-rpc"  }
 mariadb-connector-java = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadbConnectorJava" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
-aws-s3 = { module = "software.amazon.awssdk:s3" }
-aws-cloudfront = { module = "software.amazon.awssdk:cloudfront" }
+
+# AWS
+aws-s3 = { module = "aws.sdk.kotlin:s3", version.ref = "aws-sdk-kotlin" }
+aws-secretsmanager = { module = "aws.sdk.kotlin:secretsmanager", version.ref = "aws-sdk-kotlin" }
+aws-cloudfront = { module = "aws.sdk.kotlin:cloudfront", version.ref = "aws-sdk-kotlin" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
