@@ -2,12 +2,14 @@ package com.milkcocoa.info.shochu_club.models.feed
 
 import com.milkcocoa.info.shochu_club.serializers.UuidSerializer
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@JvmInline
 @OptIn(ExperimentalUuidApi::class)
 @Serializable
-data class ShochuMakerId(
+value class ShochuMakerId(
     @Serializable(UuidSerializer::class)
     val value: Uuid,
 )

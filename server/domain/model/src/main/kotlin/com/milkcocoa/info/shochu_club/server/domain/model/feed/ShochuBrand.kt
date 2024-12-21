@@ -5,11 +5,14 @@ import kotlin.uuid.Uuid
 
 
 @OptIn(ExperimentalUuidApi::class)
-data class ShochuMakerSummary(
-    val makerId: Uuid
+data class ShochuBrandSummary(
+    val brandId: Uuid,
+    val makerId: Uuid,
 )
 
+
 @OptIn(ExperimentalUuidApi::class)
-data class ShochuMakerDetails(
-    val makerId: Uuid,
+data class ShochuBrandDetails(
+    val brandId: Uuid,
+    val makerDetails: ShochuMakerDetails,
 )

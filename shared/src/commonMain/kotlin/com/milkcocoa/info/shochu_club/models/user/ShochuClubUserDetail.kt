@@ -1,8 +1,8 @@
 package com.milkcocoa.info.shochu_club.models.user
 
 import com.milkcocoa.info.shochu_club.models.details.ResponseDataEntity
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
@@ -40,5 +40,5 @@ data class ShochuClubUserDetail(
     @ProtoNumber(number = 11)
     val iconUrl: String,
     @ProtoNumber(number = 12)
-    val registeredAt: LocalDateTime,
+    val registeredAt: Instant,
 ) : ResponseDataEntity

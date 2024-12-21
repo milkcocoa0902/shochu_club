@@ -1,5 +1,7 @@
 package com.milkcocoa.info.evessa_fan_app.server.infra.database
 
+import com.milkcocoa.info.shochu_club.server.infra.database.DataBaseConnectionInfo
+import com.milkcocoa.info.shochu_club.server.infra.database.MigrationService
 import org.flywaydb.core.Flyway
 
 class FlywayMigrationService(

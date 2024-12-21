@@ -1,6 +1,8 @@
 package com.milkcocoa.info.shochu_club.server.infra.database.repository
 
 import com.milkcocoa.info.shochu_club.server.domain.model.Account
+import com.milkcocoa.info.shochu_club.server.domain.model.MediaResolutionVariant
+import com.milkcocoa.info.shochu_club.server.domain.model.StoredMediaObject
 import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
 import com.milkcocoa.info.shochu_club.server.domain.model.type.DeleteReasonValue
 import com.milkcocoa.info.shochu_club.server.domain.repository.AccountRepository
@@ -16,8 +18,10 @@ import com.milkcocoa.info.shochu_club.server.infra.database.tables.sohchu_club_u
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.IsAnonymousUser
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.IsDeleted
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.UserName
-import kotlinx.datetime.toKotlinLocalDateTime
-import java.time.LocalDateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toKotlinInstant
+import java.time.ZoneOffset
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -36,7 +40,9 @@ class AccountRepositoryImpl(): AccountRepository {
         return SystemUid.new {
             this.isAnonymousUser = IsAnonymousUser(anonymously)
             this.username = UserName(getRandomUserName(length = 12))
-            this.createdAt = LocalDateTime.now().toKotlinLocalDateTime()
+            this.createdAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
             this.isDeleted = IsDeleted(false)
             this.deleteReason = null
             this.deletedAt = null
@@ -50,8 +56,12 @@ class AccountRepositoryImpl(): AccountRepository {
         val anonymousUser = AnonymousUser.new {
             this.systemUid = systemUser
             this.comment = Comment("")
-            this.createdAt = LocalDateTime.now().toKotlinLocalDateTime()
-            this.updatedAt = LocalDateTime.now().toKotlinLocalDateTime()
+            this.createdAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
+            this.updatedAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
             this.nickname = NickName("匿名ユーザ")
             this.deleteReason = null
             this.deletedAt = null
@@ -60,9 +70,10 @@ class AccountRepositoryImpl(): AccountRepository {
         return Account.AnonymousUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
             userName = systemUser.username.value,
-            iconUrl = "",
+            iconUrl = StoredMediaObject.Image.NoData,
             comment = anonymousUser.comment.value,
             nickName = anonymousUser.nickname.value,
+            registeredAt = anonymousUser.createdAt.toInstant().toKotlinInstant()
         )
 
     }
@@ -80,7 +91,9 @@ class AccountRepositoryImpl(): AccountRepository {
             this.systemUid = systemUser
             this.email = Email(email)
             this.passwordHash = PasswordHash(passwordHash)
-            this.createdAt = LocalDateTime.now().toKotlinLocalDateTime()
+            this.createdAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
             this.registrationType = RegistrationType(1)
         }
 
@@ -105,7 +118,9 @@ class AccountRepositoryImpl(): AccountRepository {
             this.email = Email(email)
             this.isEmailVerified = IsEmailVerified(true)
             this.passwordHash = PasswordHash(passwordHash)
-            this.passwordChangedAt = LocalDateTime.now().toKotlinLocalDateTime()
+            this.passwordChangedAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
             this.failedLoginAttempts = FailedLoginAttempt(0)
             this.authProvider = AuthProvider(authProvider)
             this.isEnabled = IsEnabled(true)
@@ -116,16 +131,23 @@ class AccountRepositoryImpl(): AccountRepository {
             this.birthday = null
             this.nickName = NickName("")
             this.comment = Comment("")
-            this.createdAt = LocalDateTime.now().toKotlinLocalDateTime()
-            this.updatedAt = LocalDateTime.now().toKotlinLocalDateTime()
-            this.lastLoginAt = LocalDateTime.now().toKotlinLocalDateTime()
+            this.createdAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
+            this.updatedAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
+            this.lastLoginAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
         }
         return Account.AuthenticatedUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
             userName = systemUser.username.value,
-            iconUrl = "",
+            iconUrl = account.iconUrl?.let { StoredMediaObject.Image.UnResolved(id = it.id.value.toKotlinUuid(), key = it.resourceUrl.value, resolution = MediaResolutionVariant.Original) } ?: StoredMediaObject.Image.NoData,
             comment = account.comment.value,
             nickName = account.nickName.value,
+            registeredAt = account.createdAt.toInstant().toKotlinInstant(),
         )
     }
 
@@ -148,18 +170,20 @@ class AccountRepositoryImpl(): AccountRepository {
             return Account.AnonymousUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
                 userName = systemUser.username.value,
-                iconUrl = "",
+                iconUrl = StoredMediaObject.Image.NoData,
                 comment = anonymousUser.comment.value,
                 nickName = anonymousUser.nickname.value,
+                registeredAt = anonymousUser.createdAt.toInstant().toKotlinInstant(),
             )
         }else{
             val authenticatedUser = ShochuClubUser.find { shochu_club_user.uid eq systemUser.id.value }.first()
             return Account.AuthenticatedUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
                 userName = systemUser.username.value,
-                iconUrl = "",
+                iconUrl = authenticatedUser.iconUrl?.let { StoredMediaObject.Image.UnResolved(id = it.id.value.toKotlinUuid(), key = it.resourceUrl.value, resolution = MediaResolutionVariant.Original) } ?: StoredMediaObject.Image.NoData,
                 comment = authenticatedUser.comment.value,
                 nickName = authenticatedUser.nickName.value,
+                registeredAt = authenticatedUser.createdAt.toInstant().toKotlinInstant(),
             )
         }
     }
@@ -180,9 +204,10 @@ class AccountRepositoryImpl(): AccountRepository {
             return Account.AnonymousUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
                 userName = systemUser.username.value,
-                iconUrl = "",
+                iconUrl = StoredMediaObject.Image.NoData,
                 comment = anonymousUser.comment.value,
                 nickName = anonymousUser.nickname.value,
+                registeredAt = anonymousUser.createdAt.toInstant().toKotlinInstant(),
             )
         }else{
             val authenticatedUser = ShochuClubUser.find { shochu_club_user.uid eq systemUser.id.value }.first()
@@ -192,9 +217,10 @@ class AccountRepositoryImpl(): AccountRepository {
             return Account.AuthenticatedUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
                 userName = systemUser.username.value,
-                iconUrl = "",
+                iconUrl = authenticatedUser.iconUrl?.let { StoredMediaObject.Image.UnResolved(id = it.id.value.toKotlinUuid(), key = it.resourceUrl.value, resolution = MediaResolutionVariant.Original) } ?: StoredMediaObject.Image.NoData,
                 comment = authenticatedUser.comment.value,
                 nickName = authenticatedUser.nickName.value,
+                registeredAt = authenticatedUser.createdAt.toInstant().toKotlinInstant(),
             )
         }
     }
@@ -236,9 +262,10 @@ class AccountRepositoryImpl(): AccountRepository {
         return Account.AnonymousUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
             userName = systemUser.username.value,
-            iconUrl = "",
+            iconUrl = StoredMediaObject.Image.NoData,
             comment = anonymousUser.comment.value,
             nickName = anonymousUser.nickname.value,
+            registeredAt = anonymousUser.createdAt.toInstant().toKotlinInstant(),
         )
     }
 
@@ -261,7 +288,9 @@ class AccountRepositoryImpl(): AccountRepository {
             val systemUser = SystemUid.get(systemUid.toJavaUuid())
 
             val anonymousUser = AnonymousUser.find { anonymous_user.uid eq systemUser.id.value }.firstOrNull()
-            anonymousUser?.deletedAt = LocalDateTime.now().toKotlinLocalDateTime()
+            anonymousUser?.deletedAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
             anonymousUser?.deleteReason = DeleteReason(deleteReason)
             return@runCatching true
 

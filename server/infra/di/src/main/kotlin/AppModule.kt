@@ -2,89 +2,29 @@ import com.milkcocoa.info.application.controller.AccountController
 import com.milkcocoa.info.application.controller.AccountControllerImpl
 import com.milkcocoa.info.evessa_fan_app.server.infra.database.*
 import com.milkcocoa.info.shochu_club.server.cache.RedisCacheRepository
-import com.milkcocoa.info.shochu_club.server.domain.repository.AccountRepository
-import com.milkcocoa.info.shochu_club.server.domain.repository.CacheRepository
-import com.milkcocoa.info.shochu_club.server.domain.repository.MailBackend
+import com.milkcocoa.info.shochu_club.server.domain.repository.*
 import com.milkcocoa.info.shochu_club.server.domain.service.AccountService
 import com.milkcocoa.info.shochu_club.server.infla.mail.ConsoleBackend
-import com.milkcocoa.info.shochu_club.server.infra.database.DataSourceType
+import com.milkcocoa.info.shochu_club.server.infra.aws.RdsSecretProvider
+import com.milkcocoa.info.shochu_club.server.infra.database.*
 import com.milkcocoa.info.shochu_club.server.infra.database.repository.AccountRepositoryImpl
+import com.milkcocoa.info.shochu_club.server.infra.database.repository.FeedRepositoryImpl
 import com.milkcocoa.info.shochu_club.server.service.AccountServiceImpl
 import com.milkcocoa.info.shochu_club.server.usecase.*
 import io.ktor.server.application.*
+import kotlinx.coroutines.runBlocking
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent.inject
+import java.time.Duration
 
-enum class DataSource {
-    MainDataSource,
-}
-
-interface DataSourceFactory {
-    fun create(dataSourceType: DataSourceType): DataBaseConnectionInfo
-}
-
-interface MigrationFactory {
-    fun create(dataSourceType: DataSourceType): MigrationService
-}
-
-class MigrationFactoryImpl(
-    private val environment: ApplicationEnvironment,
-) : MigrationFactory {
-    override fun create(dataSourceType: DataSourceType): MigrationService =
-        when (dataSourceType) {
-            DataSourceType.MainDataSource -> {
-                val flywayLocations =
-                    environment.config
-                        .propertyOrNull("ktor.database.flyway.locations")
-                        ?.getList()
-                        ?.toTypedArray()
-                        ?: emptyList<String>().toTypedArray()
-
-                val dataSourceFactory: DataSourceFactory by inject(DataSourceFactory::class.java)
-                FlywayMigrationService(
-                    connectionInfo = dataSourceFactory.create(dataSourceType),
-                    flywayLocations = flywayLocations,
-                )
-            }
-        }
-}
-
-class DataSourceFactoryImpl(
-    private val environment: ApplicationEnvironment,
-) : DataSourceFactory {
-    override fun create(dataSourceType: DataSourceType): DataBaseConnectionInfo {
-        when (dataSourceType) {
-            DataSourceType.MainDataSource -> {
-                val dbName = environment.config.propertyOrNull("ktor.database.db")?.getString() ?: ""
-                val dbHost = environment.config.propertyOrNull("ktor.database.host")?.getString() ?: ""
-                val dbPort =
-                    environment.config
-                        .propertyOrNull("ktor.database.port")
-                        ?.getString()
-                        ?.toInt()!!
-                val dbUser = environment.config.propertyOrNull("ktor.database.user")?.getString() ?: ""
-                val dbPassword = environment.config.propertyOrNull("ktor.database.password")?.getString() ?: ""
-                val dbDriver = environment.config.propertyOrNull("ktor.database.driver")?.getString() ?: ""
-                val poolSize = 50
-
-                return DataBaseConnectionInfoImpl(
-                    databaseDriver = DatabaseDriver.valueOf(dbDriver),
-                    dbName = dbName,
-                    dbHost = dbHost,
-                    dbPort = dbPort,
-                    dbUser = dbUser,
-                    dbPassword = dbPassword,
-                    poolSize = poolSize,
-                )
-            }
-        }
-    }
-}
 
 fun Application.repositoryModule() =
     module {
         single<AccountRepository>{
             AccountRepositoryImpl()
+        }
+        single<FeedRepository>{
+            FeedRepositoryImpl()
         }
         single<CacheRepository>{
             RedisCacheRepository(
@@ -145,13 +85,88 @@ fun Application.appControllerModule() =
         }
     }
 
+private enum class DatabasePasswordProviderSelection(val key: String){
+    Raw(key = "Raw"),
+    AwsSecretManager(key = "ASM");
+
+    companion object{
+        fun of(key: String?) = entries.find { it.key == key }
+    }
+
+}
+
 fun Application.dataSourceModule() =
     module {
-        single<DataSourceFactory> {
-            DataSourceFactoryImpl(environment)
+
+        single<DatabasePasswordProvider>(named(enum = DatabasePasswordProviderSelection.Raw)) {
+            DatabaseRawPasswordProvider(
+                environment.config.propertyOrNull("ktor.database.password.value")?.getString() ?: error("no database password was provided")
+            )
         }
 
-        single<MigrationFactory> {
-            MigrationFactoryImpl(environment)
+        single<DatabasePasswordProvider>(named(enum = DatabasePasswordProviderSelection.AwsSecretManager)){
+            RdsSecretProvider(
+                secretName = environment.config.propertyOrNull("ktor.database.password.provider.secret")?.getString() ?: error("no secret was provided"),
+                region = environment.config.propertyOrNull("ktor.database.password.provider.region")?.getString() ?: error("no region was provided")
+            )
+        }
+        single<DataBaseConnectionInfo> {
+            val dbName = environment.config.propertyOrNull("ktor.database.db")?.getString() ?: ""
+            val dbHost = environment.config.propertyOrNull("ktor.database.host")?.getString() ?: ""
+            val dbPort =
+                environment.config
+                    .propertyOrNull("ktor.database.port")
+                    ?.getString()
+                    ?.toInt()!!
+            val dbUser = environment.config.propertyOrNull("ktor.database.user")?.getString() ?: ""
+            val dbPassword = when(DatabasePasswordProviderSelection.of(environment.config.propertyOrNull("ktor.database.password.provider.type")?.getString())) {
+                DatabasePasswordProviderSelection.Raw -> {
+                    val provider: DatabasePasswordProvider = get(named(enum = DatabasePasswordProviderSelection.Raw))
+                    runBlocking {
+                        provider.get()
+                    }
+                }
+                DatabasePasswordProviderSelection.AwsSecretManager ->{
+                    val provider: DatabasePasswordProvider = get(named(enum = DatabasePasswordProviderSelection.AwsSecretManager))
+                    runBlocking {
+                        provider.get()
+                    }
+                }
+                else -> error("no password provider was found")
+            }
+
+            val dbDriver = environment.config.propertyOrNull("ktor.database.driver")?.getString() ?: ""
+            val minPoolSize = environment.config.propertyOrNull("ktor.database.pool.min")?.getString()?.toIntOrNull() ?: 15
+            val maxPoolSize = environment.config.propertyOrNull("ktor.database.pool.max")?.getString()?.toIntOrNull() ?: minPoolSize
+            val idleTimeout = environment.config.propertyOrNull("ktor.database.pool.idle")?.getString()?.toLongOrNull()?.let { Duration.ofSeconds(it) }
+            val maxLifeTime = environment.config.propertyOrNull("ktor.database.pool.lifetime")?.getString()?.toLongOrNull()?.let { Duration.ofSeconds(it) }
+
+
+            HikariConnectionPoolInfo(
+                databaseDriver = DatabaseDriver.valueOf(dbDriver),
+                dbName = dbName,
+                dbHost = dbHost,
+                dbPort = dbPort,
+                dbUser = dbUser,
+                dbPassword = dbPassword!!,
+                minPoolSize = minPoolSize,
+                maxPoolSize = maxPoolSize,
+                idleTimeout = idleTimeout,
+                maxLifetime = maxLifeTime
+            )
+        }
+
+        single<MigrationService> {
+            val flywayLocations =
+                environment.config
+                    .propertyOrNull("ktor.database.flyway.locations")
+                    ?.getList()
+                    ?.toTypedArray()
+                    ?: emptyList<String>().toTypedArray()
+
+            FlywayMigrationService(
+                connectionInfo = get(),
+                flywayLocations = flywayLocations,
+            )
         }
     }

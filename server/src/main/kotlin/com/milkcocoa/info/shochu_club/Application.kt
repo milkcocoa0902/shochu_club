@@ -1,16 +1,17 @@
 package com.milkcocoa.info.shochu_club
 
-import DataSourceFactory
-import MigrationFactory
 import accountRoute
 import appControllerModule
 import appServiceModule
 import com.google.firebase.FirebaseApp
+import com.milkcocoa.info.shochu_club.server.infra.database.DataBaseConnectionInfo
 import com.milkcocoa.info.shochu_club.server.infra.database.DataSourceType
+import com.milkcocoa.info.shochu_club.server.infra.database.MigrationService
 import dataSourceModule
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.rpc.krpc.ktor.server.RPC
+import kotlinx.rpc.krpc.server.KRPCServer
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import repositoryModule
@@ -28,13 +29,12 @@ fun Application.apiModule() {
             appControllerModule(),
         )
     }
-    val dataSourceFactory: DataSourceFactory by inject()
-    val migrationFactory by inject<MigrationFactory>()
+    val databaseConnectionInfo: DataBaseConnectionInfo by inject()
+    val migrationService: MigrationService by inject()
 
-    dataSourceFactory.create(DataSourceType.MainDataSource).run {
-        connect()
-        migrationFactory.create(DataSourceType.MainDataSource).migrate()
-    }
+    databaseConnectionInfo.connect()
+    migrationService.migrate()
+
     install(RPC)
     install(RoutingRoot) {
         accountRoute()

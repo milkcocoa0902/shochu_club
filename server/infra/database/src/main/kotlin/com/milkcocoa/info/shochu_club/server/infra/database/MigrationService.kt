@@ -1,4 +1,4 @@
-package com.milkcocoa.info.evessa_fan_app.server.infra.database
+package com.milkcocoa.info.shochu_club.server.infra.database
 
 interface MigrationService {
     fun migrate()

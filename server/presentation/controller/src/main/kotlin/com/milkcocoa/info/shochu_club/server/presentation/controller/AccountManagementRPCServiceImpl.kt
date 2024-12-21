@@ -8,10 +8,9 @@ import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserId
 import com.milkcocoa.info.shochu_club.models.user.ShochuClubUserSummary
 import com.milkcocoa.info.shochu_club.net.rpc.AccountManagementRPCService
 import com.milkcocoa.info.shochu_club.server.domain.model.Account
+import com.milkcocoa.info.shochu_club.server.domain.model.StoredMediaObject
 import com.milkcocoa.info.shochu_club.server.domain.model.type.AuthProviderType
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.koin.java.KoinJavaComponent.inject
-import java.time.LocalDateTime
 import kotlin.coroutines.CoroutineContext
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -29,8 +28,13 @@ class AccountManagementRPCServiceImpl(
                 ShochuClubUserSummary.AnonymousUser(
                     shochuClubUserId = ShochuClubUserId(value = user.systemUid),
                     nickname = user.nickName,
-                    iconUrl = user.iconUrl,
-                    registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
+                    iconUrl = when(user.iconUrl){
+                        is StoredMediaObject.Image.NoData -> ""
+                        is StoredMediaObject.Image.UnResolved -> ""
+                        is StoredMediaObject.Image.Resolved -> (user.iconUrl as StoredMediaObject.Image.Resolved).url
+                    },
+                    registeredAt = user.registeredAt,
+                    username = user.userName
                 )
             )
         }.getOrElse {
@@ -85,8 +89,13 @@ class AccountManagementRPCServiceImpl(
                 ShochuClubUserSummary.AnonymousUser(
                     shochuClubUserId = ShochuClubUserId(value = user.systemUid),
                     nickname = user.nickName,
-                    iconUrl = user.iconUrl,
-                    registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
+                    iconUrl = when(user.iconUrl){
+                        is StoredMediaObject.Image.NoData -> ""
+                        is StoredMediaObject.Image.UnResolved -> ""
+                        is StoredMediaObject.Image.Resolved -> (user.iconUrl as StoredMediaObject.Image.Resolved).url
+                    },
+                    registeredAt = user.registeredAt,
+                    username = user.userName
                 )
             )
         }.getOrElse {
@@ -115,8 +124,13 @@ class AccountManagementRPCServiceImpl(
                         ShochuClubUserSummary.AnonymousUser(
                             shochuClubUserId = ShochuClubUserId(value = user.systemUid),
                             nickname = user.nickName,
-                            iconUrl = user.iconUrl,
-                            registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
+                            iconUrl = when(user.iconUrl){
+                                is StoredMediaObject.Image.NoData -> ""
+                                is StoredMediaObject.Image.UnResolved -> ""
+                                is StoredMediaObject.Image.Resolved -> (user.iconUrl as StoredMediaObject.Image.Resolved).url
+                            },
+                            registeredAt = user.registeredAt,
+                            username = user.userName
                         )
                     )
                 }
@@ -125,8 +139,13 @@ class AccountManagementRPCServiceImpl(
                         ShochuClubUserSummary.AuthenticatedUser(
                             shochuClubUserId = ShochuClubUserId(value = user.systemUid),
                             nickname = user.userName,
-                            iconUrl = user.iconUrl,
-                            registeredAt = LocalDateTime.now().toKotlinLocalDateTime()
+                            iconUrl = when(user.iconUrl){
+                                is StoredMediaObject.Image.NoData -> ""
+                                is StoredMediaObject.Image.UnResolved -> ""
+                                is StoredMediaObject.Image.Resolved -> (user.iconUrl as StoredMediaObject.Image.Resolved).url
+                            },
+                            registeredAt = user.registeredAt,
+                            username = user.userName
                         )
                     )
                 }
@@ -157,12 +176,19 @@ class AccountManagementRPCServiceImpl(
                 confirmationCode = confirmationCode
             )
 
+
+
             return@runCatching Result.Success(
                 ShochuClubUserSummary.AuthenticatedUser(
                     shochuClubUserId = ShochuClubUserId(value = user.systemUid),
-                    iconUrl = user.iconUrl,
-                    registeredAt = LocalDateTime.now().toKotlinLocalDateTime(),
-                    nickname = user.nickName
+                    iconUrl = when(user.iconUrl){
+                        is StoredMediaObject.Image.NoData -> ""
+                        is StoredMediaObject.Image.UnResolved -> ""
+                        is StoredMediaObject.Image.Resolved -> (user.iconUrl as StoredMediaObject.Image.Resolved).url
+                    },
+                    registeredAt = user.registeredAt,
+                    nickname = user.nickName,
+                    username = user.userName
                 )
             )
         }.getOrElse {
