@@ -6,12 +6,29 @@ ktor:
     modules:
       - "com.milkcocoa.info.shochu_club.ApplicationKt.apiModule"
   database:
-    db: $MARIADB_DATABASE
-    host: $MARIADB_HOST
-    port: $MARIADB_EXPOSED_PORT
-    driver: JdbcMariadb
-    user: $MARIADB_USER
-    password: $MARIADB_PASSWORD
+    db: $API_DB_DATABASE
+    host: $API_DB_HOST
+    port: $API_DB_EXPOSED_PORT
+    driver: JdbcPostgres
+    user: $API_DB_USER
+    pool:
+      min: 10
+      max: 50
+      idle: 1200
+      lifetime: 1800
+    password:
+      # value: 生の値
+      value: $API_DB_PASSWORD
+      # パスワード生成器
+      provider:
+        # 生成器の種類
+        # Raw: そのまま使用する
+        # ASM: AWS Secret Managerを使用する
+        type: Raw
+        # Optional
+        # AWS Secret Managerを用いる場合に必須
+        secret: ""
+        region: ""
     flyway:
       locations:
         - "classpath:db/migration"
