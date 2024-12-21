@@ -20,6 +20,7 @@ dependencies {
     implementation(projects.server.infra.database)
     implementation(projects.server.infra.mail)
     implementation(projects.server.infra.cache)
+    implementation(projects.server.infra.aws)
 
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.core)

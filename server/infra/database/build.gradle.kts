@@ -13,14 +13,17 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.exposed.dao)
     implementation(libs.exposed.jdbc) // or
-    implementation(libs.mariadb.connector.java)
     implementation(libs.exposed.kotlin.datetime)
     api(libs.hikaricp)
 
     implementation(libs.flyway.core)
     implementation(libs.flyway.mysql)
+    implementation(libs.flyway.postgresql)
     testImplementation(kotlin("test"))
     implementation(libs.kotlinx.datetime)
+
+    implementation(libs.mariadb.connector.java)
+    implementation(libs.postgresql)
 }
 
 tasks.test {

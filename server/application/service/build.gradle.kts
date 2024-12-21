@@ -6,6 +6,7 @@ group = "com.milkcocoa.info.shochu_club.server"
 version = "unspecified"
 
 dependencies {
+    implementation(libs.kotlinx.datetime)
     implementation(projects.server.domain.model)
     implementation(projects.server.domain.repository)
     implementation(projects.server.domain.service)
