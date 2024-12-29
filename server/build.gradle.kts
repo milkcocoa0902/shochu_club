@@ -65,7 +65,7 @@ kotlin {
 }
 
 val newRelicDownloadDestination = layout.buildDirectory.dir("tmp/newrelic").get()
-val newRelicExtractDestination = layout.projectDirectory.dir("newrelic")
+val newRelicExtractDestination = layout.projectDirectory
 
 tasks.register<Download>("downloadNewrelic"){
     mkdir(newRelicDownloadDestination)

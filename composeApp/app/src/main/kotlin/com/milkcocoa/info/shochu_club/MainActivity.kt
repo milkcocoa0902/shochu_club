@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.newrelic.agent.android.NewRelic
 import kotlin.uuid.ExperimentalUuidApi
 
 class MainActivity : ComponentActivity() {
@@ -33,6 +34,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalUuidApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        NewRelic.withApplicationToken(BuildConfig.NewRelicApiKey).start(this.applicationContext)
+
 
 
 //        CoroutineScope(Dispatchers.IO).launch {

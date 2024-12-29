@@ -19,6 +19,9 @@ plugins {
 }
 
 android {
+    val localProperties = Properties()
+    localProperties.load(project.rootProject.file("local.properties").inputStream())
+
     namespace = "com.milkcocoa.info.shochu_club"
     compileSdk =
         libs.versions.android.compileSdk
@@ -30,20 +33,17 @@ android {
 //    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     signingConfigs {
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        println(properties)
         create("dev") {
-            keyAlias = properties["devKey.alias"] as String
-            storeFile = File(properties["devKey.file"] as String)
-            storePassword = properties["devKey.storePassword"] as String
-            keyPassword = properties["devKey.keyPassword"] as String
+            keyAlias = localProperties["devKey.alias"] as String
+            storeFile = File(localProperties["devKey.file"] as String)
+            storePassword = localProperties["devKey.storePassword"] as String
+            keyPassword = localProperties["devKey.keyPassword"] as String
         }
         create("prod") {
-            keyAlias = properties["prodKey.alias"] as String
-            storeFile = File(properties["prodKey.file"] as String)
-            storePassword = properties["prodKey.storePassword"] as String
-            keyPassword = properties["prodKey.keyPassword"] as String
+            keyAlias = localProperties["prodKey.alias"] as String
+            storeFile = File(localProperties["prodKey.file"] as String)
+            storePassword = localProperties["prodKey.storePassword"] as String
+            keyPassword = localProperties["prodKey.keyPassword"] as String
         }
     }
 
@@ -71,11 +71,21 @@ android {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("dev")
             applicationIdSuffix = ".dev"
+            buildConfigField(
+                type = "String",
+                name = "NewRelicApiKey",
+                value = localProperties["newrelic.mobile.dev"] as String
+            )
         }
 
         getByName("release") {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("prod")
+            buildConfigField(
+                type = "String",
+                name = "NewRelicApiKey",
+                value = localProperties["newrelic.mobile.dev"] as String
+            )
         }
     }
 
@@ -85,6 +95,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     kotlinOptions {
         jvmTarget = "17"
