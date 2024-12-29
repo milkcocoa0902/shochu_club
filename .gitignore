@@ -21,3 +21,8 @@ captures
 !.env.template
 
 *.json
+
+server/newrelic/*
+
+
+composeApp/app/newrelic.properties
