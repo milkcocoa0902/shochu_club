@@ -35,3 +35,21 @@ ktor:
   cache:
     host: $REDIS_HOST
     port: $REDIS_PORT
+  storage:
+#    key: $ACCESS_KEY_ID
+#    secret: $ACCESS_SECRET
+    bucket: $API_STORAGE_BUCKET
+    region: $API_STORAGE_REGION
+    # S3 エンドポイントを使用してバケットにアクセスする際に利用
+    endpoint: $API_STORAGE_ENDPOINT
+    distribute:
+      # コンテンツ配信のタイプ
+      # Direct: バケットからそのまま配信する。
+      # CDN: CloudFrontなどを用いて配信する
+      type: Direct
+      # typeがCDNのときのオリジン
+      origin: ""
+      # 署名をするかどうか
+      sign: false
+      # 署名の有効期限（秒）
+      lifetime: 0

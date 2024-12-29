@@ -22,5 +22,5 @@ interface TimelineRPCService: RemoteService {
 }
 
 
-suspend fun timelineRpcClient(urlString: String) = ktorRpcClient(urlString).withService<TimelineRPCService>()
+suspend fun timelineRpcClient(urlString: String) = ktorRpcClient("$urlString/timeline").withService<TimelineRPCService>()
 

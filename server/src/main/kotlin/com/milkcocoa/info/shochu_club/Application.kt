@@ -5,16 +5,15 @@ import appControllerModule
 import appServiceModule
 import com.google.firebase.FirebaseApp
 import com.milkcocoa.info.shochu_club.server.infra.database.DataBaseConnectionInfo
-import com.milkcocoa.info.shochu_club.server.infra.database.DataSourceType
 import com.milkcocoa.info.shochu_club.server.infra.database.MigrationService
 import dataSourceModule
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.rpc.krpc.ktor.server.RPC
-import kotlinx.rpc.krpc.server.KRPCServer
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import repositoryModule
+import timelineRoute
 import useCaseModule
 
 fun Application.apiModule() {
@@ -38,5 +37,6 @@ fun Application.apiModule() {
     install(RPC)
     install(RoutingRoot) {
         accountRoute()
+        timelineRoute()
     }
 }

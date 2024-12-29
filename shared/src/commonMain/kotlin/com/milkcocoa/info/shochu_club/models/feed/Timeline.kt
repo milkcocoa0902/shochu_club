@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Timeline(
-    val feeds: Iterable<FeedSummaryRecord>
+    val feeds: List<FeedSummaryRecord>
 ): ResponseDataEntity

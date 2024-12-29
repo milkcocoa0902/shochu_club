@@ -1,25 +1,35 @@
 import com.milkcocoa.info.application.controller.AccountController
 import com.milkcocoa.info.application.controller.AccountControllerImpl
+import com.milkcocoa.info.application.controller.TimelineController
+import com.milkcocoa.info.application.controller.TimelineControllerImpl
 import com.milkcocoa.info.evessa_fan_app.server.infra.database.*
 import com.milkcocoa.info.shochu_club.server.cache.RedisCacheRepository
 import com.milkcocoa.info.shochu_club.server.domain.repository.*
 import com.milkcocoa.info.shochu_club.server.domain.service.AccountService
+import com.milkcocoa.info.shochu_club.server.domain.service.TimelineService
 import com.milkcocoa.info.shochu_club.server.infla.mail.ConsoleBackend
 import com.milkcocoa.info.shochu_club.server.infra.aws.RdsSecretProvider
+import com.milkcocoa.info.shochu_club.server.infra.aws.S3DistributionBackend
 import com.milkcocoa.info.shochu_club.server.infra.database.*
 import com.milkcocoa.info.shochu_club.server.infra.database.repository.AccountRepositoryImpl
 import com.milkcocoa.info.shochu_club.server.infra.database.repository.FeedRepositoryImpl
 import com.milkcocoa.info.shochu_club.server.service.AccountServiceImpl
+import com.milkcocoa.info.shochu_club.server.service.TimelineServiceImpl
 import com.milkcocoa.info.shochu_club.server.usecase.*
+import io.ktor.http.*
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import java.net.URL
 import java.time.Duration
 
 
 fun Application.repositoryModule() =
     module {
+        single<FeedRepository>{
+            FeedRepositoryImpl()
+        }
         single<AccountRepository>{
             AccountRepositoryImpl()
         }
@@ -37,10 +47,23 @@ fun Application.repositoryModule() =
         single<MailBackend> {
             ConsoleBackend()
         }
+        single<DistributionBackend>{
+            S3DistributionBackend(
+                bucket = environment.config.propertyOrNull("ktor.storage.bucket")?.getString() ?: error(""),
+                region = environment.config.propertyOrNull("ktor.storage.region")?.getString() ?: error(""),
+                endpointUrl = environment.config.propertyOrNull("ktor.storage.endpoint")?.getString()?.let { URL(it) }
+            )
+        }
     }
 
 fun Application.appServiceModule() =
     module {
+        single<TimelineService>{
+            TimelineServiceImpl(
+                feedRepository = get(),
+                distributionBackend = get(),
+            )
+        }
         single<AccountService> {
             AccountServiceImpl(
                 accountRepository = get(),
@@ -52,6 +75,11 @@ fun Application.appServiceModule() =
 
 fun Application.useCaseModule() =
     module {
+        single<HomeTimelineUseCase>{
+            HomeTimelineUseCaseImpl(
+                timelineService = get()
+            )
+        }
         single<CreateUserAnonymouslyUseCase> {
             CreateUserAnonymouslyUseCaseImpl(accountService = get())
         }
@@ -81,6 +109,11 @@ fun Application.appControllerModule() =
                 updateUserNameUseCase = get(),
                 provisioningAnonymousAccountUseCase = get(),
                 promoteProvisionedAccountUseCase = get(),
+            )
+        }
+        single<TimelineController>{
+            TimelineControllerImpl(
+                homeTimelineUseCase = get()
             )
         }
     }
