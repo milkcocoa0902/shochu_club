@@ -12,13 +12,13 @@ import com.milkcocoa.info.shochu_club.server.infra.database.entities.FeedImageRe
 import com.milkcocoa.info.shochu_club.server.infra.database.entities.ShochuClubUser
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.feed.feed_table
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.feed_image_resource.feed_image_resource_table
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.profile_image_resource.profile_image_resource
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.relationship.relationship_table
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_brand.shochu_brand
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_maker.shochu_maker
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.sohchu_club_user.shochu_club_user
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid
 import kotlinx.datetime.toKotlinInstant
+import org.jetbrains.exposed.dao.with
 import org.jetbrains.exposed.sql.*
 import java.time.OffsetDateTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -64,29 +64,29 @@ class FeedRepositoryImpl: FeedRepository {
                     } ?: Op.TRUE
                 }
                 .orderBy(feed_table.createdAt to SortOrder.DESC)
-                .limit(n = count)
+                .limit(n = count).let {
+                    Feed.wrapRows(it)
+                }
+                .with(Feed::postOwner, Feed::brand)
                 .asSequence()
-                .map { Feed.wrapRow(it) }
 
         // 投稿に関わったユーザを検索する
-        val users =
+        val users = if(currentFeed.count() > 0)
             shochu_club_user.innerJoin(
                 otherTable = system_uid,
                 onColumn = { shochu_club_user.uid },
-                otherColumn = { shochu_club_user.id },
+                otherColumn = { system_uid.id },
                 additionalConstraint = {
-                    system_uid.id inList currentFeed.map { it.postOwner.id.value }.toList()
+                    system_uid.id inList currentFeed.map { it.postOwner.id }.toList()
                 }
-            ).leftJoin(
-                otherTable = profile_image_resource,
-                onColumn = { shochu_club_user.iconUrl },
-                otherColumn = { profile_image_resource.id }
             ).selectAll()
+                .let { ShochuClubUser.wrapRows(it) }
                 .asSequence()
-                .map { ShochuClubUser.wrapRow(it) }
+        else emptySequence()
 
         // 投稿に含まれている画像を検索する
         val imageMapping =
+            if(currentFeed.count() > 0)
             feed_image_resource_table.innerJoin(
                 otherTable = feed_table,
                 onColumn = { feed_image_resource_table.relatedFeed },
@@ -96,9 +96,12 @@ class FeedRepositoryImpl: FeedRepository {
                             (feed_image_resource_table.relatedFeed neq null) and
                             (feed_image_resource_table.resourceOwner neq null)
                 }
-            ).selectAll().asSequence().map { FeedImageResource.wrapRow(it) }
+            ).selectAll()
+                .let { FeedImageResource.wrapRows(it) }
+                .asSequence()
+        else emptySequence()
 
-        val userMap = users.associateBy { it.id.value }
+        val userMap = users.associateBy { it.systemUid.id.value }
         val imageMap = imageMapping.groupBy { it.relatedFeed!!.id.value }
 
         // 整形する
@@ -107,28 +110,29 @@ class FeedRepositoryImpl: FeedRepository {
             val img = imageMap[feed.id.value] ?: emptyList()
 
 
+
             when(FeedCategoryType.valueOf(type = feed.feedCategory.value)){
                 FeedCategoryType.NormalFeed ->{
                     FeedSummaryDataObject.NormalFeedData(
                         id = feed.id.value.toKotlinUuid(),
                         owner = Account.AuthenticatedUser(
-                            systemUid = feed.postOwner.id.value.toKotlinUuid(),
-                            iconUrl = u.iconUrl?.let {
+                            systemUid = u.systemUid.id.value.toKotlinUuid(),
+                            iconUrl = u.profileIconUrl.value.takeIf { it.isNotBlank() }?.let {
                                 StoredMediaObject.Image.UnResolved(
-                                    id = it.id.value.toKotlinUuid(),
-                                    key = it.resourceUrl.value,
+                                    id = Uuid.random(),
+                                    key = u.profileIconUrl.value,
                                     resolution = MediaResolutionVariant.Original
                                 )
-                            } ?: StoredMediaObject.Image.NoData,
-                            registeredAt = feed.postOwner.createdAt.toInstant().toKotlinInstant(),
-                            userName = feed.postOwner.username.value,
+                            }  ?: StoredMediaObject.Image.NoData,
+                            registeredAt = u.systemUid.createdAt.toInstant().toKotlinInstant(),
+                            userName = u.systemUid.username.value,
                             nickName = u.nickName.value,
                             comment = u.comment.value
                         ),
                         text = feed.text.value,
                         brand = ShochuBrandSummary(
                             makerId = feed.brand.makerId.id.value.toKotlinUuid(),
-                            brandId = feed.brand.id.value.toKotlinUuid(),
+                            brandId = feed.id.value.toKotlinUuid(),
                         ),
                         storedMediaObjects = img.map {
                             StoredMediaObject.Image.UnResolved(
