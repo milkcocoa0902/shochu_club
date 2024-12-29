@@ -6,9 +6,10 @@ import java.nio.file.Path
 class CloudFrontDistributionBackend(
     private val baseUrl: String,
     private val keyPairId: String,
-    private val privateKey: Path
+    private val privateKey: Path,
+    private val bucket: String,
 ): DistributionBackend {
-    override suspend fun generateSignedUrl(bucket: String, key: String, expires: Long): String {
+    override suspend fun generateSignedUrl( key: String, expires: Long): String {
         val url = "${baseUrl.trimEnd('/')}/$bucket/$key"
         return url
 
