@@ -14,7 +14,6 @@ class ShochuMaker(id: EntityID<UUID>): UUIDEntity(id) {
     var makerUrl by shochu_maker.makerUrl
     var makerAddress by shochu_maker.makerAddress
     var makerArea by shochu_maker.makerArea
-    var mainMakerImageResource by ImageResource optionalReferencedOn shochu_maker.mainMakerImageResource
     var createdAt by shochu_maker.createdAt
     var updatedAt by shochu_maker.updatedAt
 }

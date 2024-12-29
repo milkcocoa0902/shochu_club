@@ -11,7 +11,6 @@ class ShochuBrand(id: EntityID<UUID>) : UUIDEntity(id) {
 
     var brandName by shochu_brand.brandName
     var brandDescription by shochu_brand.brandDescription
-    var brandMainImageUrl by shochu_brand.brandMainImageUrl
     var makerId by ShochuMaker referencedOn shochu_brand.maker
     var createdAt by shochu_brand.createdAt
     var updatedAt by shochu_brand.updatedAt

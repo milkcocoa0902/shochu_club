@@ -4,7 +4,6 @@ import com.milkcocoa.info.evessa_fan_app.server.infra.database.column.booleanVal
 import com.milkcocoa.info.shochu_club.server.infra.database.column.integerValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.column.stringValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.*
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.profile_image_resource.profile_image_resource
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.IsDeleted
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid
 import org.jetbrains.exposed.dao.id.UUIDTable
@@ -17,7 +16,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 object shochu_club_user : UUIDTable("shochu_club_user", "id") {
 
     val uid = reference(
-        "system_uid",
+        "uid",
         system_uid,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
@@ -36,12 +35,7 @@ object shochu_club_user : UUIDTable("shochu_club_user", "id") {
     val birthday = date("birthday").nullable()
     val nickname = stringValueObject<NickName>("nickname")
     val comment = stringValueObject<Comment>("comment")
-    val iconUrl = reference(
-        name = "icon_url",
-        foreign = profile_image_resource,
-        onDelete = ReferenceOption.SET_NULL,
-        onUpdate = ReferenceOption.CASCADE
-    ).nullable()
+    val profileIconUrl = stringValueObject<ProfileIconUrl>("profile_icon_url")
     val createdAt = timestampWithTimeZone("created_at")
     val updatedAt = timestampWithTimeZone("updated_at")
     val lastLoginAt = timestampWithTimeZone("last_login_at").nullable()

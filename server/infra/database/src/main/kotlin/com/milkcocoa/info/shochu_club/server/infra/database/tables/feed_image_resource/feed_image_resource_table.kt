@@ -3,8 +3,6 @@ package com.milkcocoa.info.shochu_club.server.infra.database.tables.feed_image_r
 import com.milkcocoa.info.shochu_club.server.infra.database.column.stringValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.ResourceUrl
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.feed.feed_table
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.profile_image_resource.profile_image_resource
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.profile_image_resource.profile_image_resource.nullable
 import com.milkcocoa.info.shochu_club.server.infra.database.tables.system_uid.system_uid
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption

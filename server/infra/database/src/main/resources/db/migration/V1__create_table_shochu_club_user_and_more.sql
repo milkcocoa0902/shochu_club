@@ -1,156 +1,172 @@
-create table if not exists system_uid(
-    uid uuid primary key,
-    username varchar(64) unique not null,
-    created_at timestamp with time zone not null,        -- UIDの作成日時
-    is_deleted bool not null default false, -- UIDの削除フラグ
-    is_anonymous_user boolean default false,
-    delete_reason int null,              -- 削除理由（ENUMや数値で定義）
-    deleted_at timestamp with time zone null             -- 削除された日時
+-- UIDを一括で管理するテーブル
+CREATE TABLE IF NOT EXISTS system_uid(
+    -- システム全体でユーザを一意に識別するためのID
+    uid UUID PRIMARY KEY,
+    -- UIDに紐づくユーザ名。
+    -- uidはuuidなので、それをヒューマンフレンドリーな文字列に対応させたもの
+    username VARCHAR(64) UNIQUE NOT NULL,
+    -- レコード作成日時
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    -- レコード更新日時
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL ,
+    -- UIDに紐づくアカウントが削除されているかどうか
+    -- つまり、本登録ユーザが削除されているかどうか
+    -- 匿名ユーザの削除は、本登録ユーザへの昇格の可能性もあるので、削除とみなされない
+    is_deleted BOOL NOT NULL DEFAULT FALSE,
+    -- 紐付いているアカウントが匿名ユーザかどうか
+    is_anonymous_user BOOL DEFAULT FALSE,
+    -- 削除理由
+    delete_reason INT NULL,
+    -- 削除時刻
+    -- つまり、本登録ユーザの退会時刻
+    deleted_at TIMESTAMP WITH TIME ZONE NULL
 );
 
-create table if not exists profile_image_resource(
-    resource_id uuid primary key,
-    resource_url varchar(512) not null,
-    resource_owner uuid null,
-    -- データ作成日時
-    created_at timestamp with time zone not null default current_timestamp,
-    constraint fk__image_resource__owner foreign key (resource_owner) references system_uid(uid) on delete set null on update cascade
-);
-
-create table if not exists anonymous_user (
-    id uuid primary key ,
+-- 匿名ユーザテーブル
+CREATE TABLE IF NOT EXISTS anonymous_user (
+    -- システム上のID
+    id UUID PRIMARY KEY ,
     -- ユーザID
-    system_uid uuid unique ,
-    nickname varchar(64) not null ,
-    comment varchar(512) not null ,
-    delete_reason int null,              -- 昇格や削除の理由
+    uid UUID UNIQUE REFERENCES system_uid(uid) ON DELETE CASCADE ON UPDATE CASCADE,
+    -- ニックネーム
+    nickname VARCHAR(64) NOT NULL ,
+    -- コメント
+    comment VARCHAR(512) NOT NULL ,
+    -- 削除理由
+    -- 0: 本登録のため
+    -- 1: ユーザ申し出のため
+    delete_reason INT NULL,
     -- データ作成日時
-    created_at timestamp with time zone not null default current_timestamp,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- データ更新日時
-    updated_at timestamp with time zone not null default current_timestamp,
-    deleted_at timestamp with time zone null ,             -- 削除された日時
-    constraint fk_anonymous_user_uid foreign key (system_uid) references system_uid(uid) on delete cascade on update cascade
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- アカウント削除時刻
+    -- 例えば成り上がったときとか、申し出のとき
+    deleted_at TIMESTAMP WITH TIME ZONE NULL
 );
+CREATE INDEX ON anonymous_user(uid);
 
-create table if not exists shochu_club_user(
-    id uuid primary key ,
+
+CREATE TABLE IF NOT EXISTS shochu_club_user(
+    id UUID PRIMARY KEY ,
     -- ユーザID
-    system_uid uuid unique ,
+    uid UUID UNIQUE REFERENCES system_uid(uid) ON DELETE CASCADE ON UPDATE CASCADE,
     -- メアド
-    email varchar(250) unique not null,
-    is_email_verified bool not null,
+    email VARCHAR(250) UNIQUE NOT NULL,
+    is_email_verified BOOL NOT NULL,
     -- ハッシュ化済パスワード（Argon2）
     password_hash TEXT,
     -- パスワード変更日時
-    password_changed_at timestamp with time zone not null default current_timestamp,
+    password_changed_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- ログイン失敗回数
-    failed_login_attempts int not null default 0,
+    failed_login_attempts INT NOT NULL DEFAULT 0,
     -- 認証プロバイダ
-    auth_provider int not null,
+    auth_provider INT NOT NULL,
 
-    is_enabled bool not null default true,
-    is_deleted bool not null default false,
-    is_locked bool not null default false,
+    is_enabled BOOL NOT NULL DEFAULT TRUE,
+    is_deleted BOOL NOT NULL DEFAULT FALSE,
+    is_locked BOOL NOT NULL DEFAULT FALSE,
 
-    multi_factor_auth_enabled bool not null,
-    multi_factor_auth_secret TEXT null,
+    multi_factor_auth_enabled BOOL NOT NULL,
+    multi_factor_auth_secret TEXT NULL,
 
     -- 誕生日
-    birthday timestamp with time zone null,
+    birthday TIMESTAMP WITH TIME ZONE NULL,
     -- ニックネーム
-    nickname varchar(64) not null,
+    nickname VARCHAR(64) NOT NULL,
     -- コメント
-    comment varchar(512) not null,
+    comment VARCHAR(512) NOT NULL,
     -- アイコン画像URL
-    icon_url uuid null ,
+    profile_icon_url VARCHAR(384),
     -- データ作成日時
-    created_at timestamp with time zone not null default current_timestamp,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- データ更新日時
-    updated_at timestamp with time zone not null default current_timestamp,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- 最終ログイン時刻
-    last_login_at timestamp with time zone null,
+    last_login_at TIMESTAMP WITH TIME ZONE NULL,
     -- アカウントをDISABLEにした時刻
-    account_disabled_at timestamp with time zone null,
+    account_disabled_at TIMESTAMP WITH TIME ZONE NULL,
     -- アカウント削除時刻
-    account_deleted_at timestamp with time zone null,
-    constraint fk__shochu_club_user__uid foreign key (system_uid ) references system_uid(uid) on delete cascade on update cascade,
-    constraint fc_icon_url foreign key(icon_url) references profile_image_resource(resource_id) on delete set null
+    account_deleted_at TIMESTAMP WITH TIME ZONE NULL
 );
+CREATE INDEX ON shochu_club_user(uid);
 
-
-CREATE TABLE provisional_registration (
-    id uuid PRIMARY KEY,     -- 仮登録の一意のID
-    system_uid uuid null ,                                         -- 関連するユーザーID（既存ユーザーの場合）
+CREATE TABLE IF NOT EXISTS provisional_registration (
+    id UUID PRIMARY KEY,     -- 仮登録の一意のID
+    uid UUID NULL REFERENCES system_uid(uid) ON DELETE CASCADE ON UPDATE CASCADE,                                         -- 関連するユーザーID（既存ユーザーの場合）
     email VARCHAR(255) NOT NULL UNIQUE ,                                         -- 仮登録中のメールアドレス（新規登録/変更後のアドレス）
     password_hash TEXT,                                                  -- パスワードのハッシュ（新規登録時のみ, ）
-    registration_type int NOT NULL,                                      -- 0: new, 1: change email
-    created_at timestamp with time zone DEFAULT cast(current_timestamp as timestamp with time zone ),    -- 仮登録の作成日時
-    constraint fk__1herAFbsgf_user_id foreign key(system_uid) references system_uid(uid) on delete cascade on update cascade ,
-    CHECK ( registration_type in (0, 1))
+    registration_type INT NOT NULL,                                      -- 0: new, 1: change email
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,    -- 仮登録の作成日時
+    CHECK ( registration_type IN (0, 1))
 );
-CREATE INDEX ON provisional_registration(system_uid);
+CREATE INDEX ON provisional_registration(uid);
 
 
-
-
-
-
-
-create table if not exists shochu_maker(
-    -- uuid v4(or v7)
-    maker_id uuid primary key,
+CREATE TABLE IF NOT EXISTS shochu_maker(
+    -- UUID v4(or v7)
+    maker_id UUID PRIMARY KEY,
     -- メーカ名
-    maker_name varchar(64) not null,
+    maker_name VARCHAR(64) NOT NULL,
     -- 詳細
-    maker_description varchar(512) not null,
+    maker_description VARCHAR(512) NOT NULL,
     -- URL
-    maker_url varchar(255) not null,
+    maker_url VARCHAR(255) NOT NULL,
     -- 住所
-    maker_address varchar(512) not null,
+    maker_address VARCHAR(512) NOT NULL,
     -- 都道府県コード
-    maker_area int not null,
-    -- メーカーの画像(メイン)
-    main_maker_image_resource uuid null,
+    maker_area INT NOT NULL,
     -- データ作成日時
-    created_at timestamp with time zone not null default current_timestamp,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- データ更新日時
-    updated_at timestamp with time zone not null default current_timestamp,
-
-    constraint fk_main_maker_image_url foreign key (main_maker_image_resource) references profile_image_resource(resource_id) on delete set null,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- 1:北海道 ...
     -- 47: 沖縄県
-    check ( maker_area between 1 and 47)
-
+    check ( maker_area BETWEEN 1 and 47)
 );
 
-create table if not exists shochu_brand(
-    -- ブランドID
-    brand_id uuid primary key,
-    -- ブランド名
-    brand_name varchar(64) not null,
-    -- ブランド詳細
-    brand_description varchar(512) not null,
-    -- ブランド画像(メイン)
-    brand_main_image_url uuid null,
-    -- メーカー
-    maker_id uuid not null,
+CREATE TABLE IF NOT EXISTS shochu_maker_image_resource(
+    resource_id UUID PRIMARY KEY,
+    resource_url VARCHAR(512) NOT NULL,
+    related_maker UUID NOT NULL REFERENCES shochu_maker(maker_id) ON DELETE CASCADE ON UPDATE CASCADE ,
     -- データ作成日時
-    created_at timestamp with time zone not null default current_timestamp,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX ON shochu_maker_image_resource(related_maker);
+
+
+CREATE TABLE IF NOT EXISTS shochu_brand(
+    -- ブランドID
+    brand_id UUID PRIMARY KEY,
+    -- ブランド名
+    brand_name VARCHAR(64) NOT NULL,
+    -- ブランド詳細
+    brand_description VARCHAR(512) NOT NULL,
+    -- メーカー
+    maker_id UUID NOT NULL REFERENCES shochu_maker(maker_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    -- データ作成日時
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- データ更新日時
-    updated_at timestamp with time zone not null default current_timestamp,
-    constraint fk_maker_id foreign key (maker_id) references shochu_maker(maker_id) on delete cascade ,
-    constraint fk_main_image_url foreign key (brand_main_image_url) references profile_image_resource(resource_id) on delete set null
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-create table if not exists user_session(
-    session_id uuid primary key , -- セッションID
-    system_uid uuid not null , -- セッションを持つユーザ
-    refresh_token_hash bit(32) not null, -- HMAC-SHA256
-    created_at timestamp with time zone not null, -- セッション発行時刻
-    expires_at timestamp with time zone not null,
-    constraint fk__user_session_user_id foreign key(system_uid) references system_uid(uid) on delete cascade on update cascade
+CREATE TABLE IF NOT EXISTS shochu_brand_image_resource(
+    resource_id UUID PRIMARY KEY,
+    resource_url VARCHAR(512) NOT NULL,
+    related_brand UUID NOT NULL REFERENCES shochu_brand(brand_id) ON DELETE CASCADE ON UPDATE CASCADE ,
+    -- データ作成日時
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);
+CREATE INDEX ON shochu_brand_image_resource(related_brand);
+
+CREATE TABLE IF NOT EXISTS user_session(
+    session_id UUID PRIMARY KEY , -- セッションID
+    uid UUID NOT NULL REFERENCES system_uid(uid) ON DELETE CASCADE ON UPDATE CASCADE, -- セッションを持つユーザ
+    refresh_token_hash bit(32) NOT NULL, -- HMAC-SHA256
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL, -- セッション発行時刻
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE INDEX ON user_session(system_uid);
+CREATE INDEX ON user_session(uid);
 -- CREATE INDEX ON user_session(created_at);
 -- CREATE INDEX ON user_session(expires_at);

@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 object user_session: UUIDTable("user_session", "session_id") {
     val uid = reference(
-        "system_uid",
+        "uid",
         system_uid,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE

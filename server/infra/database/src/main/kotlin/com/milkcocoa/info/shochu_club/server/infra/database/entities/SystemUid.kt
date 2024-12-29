@@ -13,6 +13,7 @@ class SystemUid(id: EntityID<UUID>) : UUIDEntity(id) {
 
     var username by system_uid.username
     var createdAt by system_uid.createdAt
+    var updatedAt by system_uid.updatedAt
     var isDeleted by system_uid.is_deleted
     var isAnonymousUser by system_uid.is_anonymous_user
     var deleteReason by system_uid.deleteReason

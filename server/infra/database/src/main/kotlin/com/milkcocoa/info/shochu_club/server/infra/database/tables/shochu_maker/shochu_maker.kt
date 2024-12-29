@@ -3,7 +3,7 @@ package com.milkcocoa.info.shochu_club.server.infra.database.tables.shochu_maker
 import com.milkcocoa.info.shochu_club.server.infra.database.column.ValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.column.integerValueObject
 import com.milkcocoa.info.shochu_club.server.infra.database.column.stringValueObject
-import com.milkcocoa.info.shochu_club.server.infra.database.tables.profile_image_resource.profile_image_resource
+import com.milkcocoa.info.shochu_club.server.infra.database.tables.common.ResourceUrl
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
@@ -25,12 +25,17 @@ object shochu_maker: UUIDTable("shochu_maker", "maker_id") {
     val makerUrl = stringValueObject<MakerUrl>("maker_url")
     val makerAddress = stringValueObject<MakerAddress>("maker_address")
     val makerArea = integerValueObject<MakerArea>("maker_area")
-    val mainMakerImageResource = reference(
-        "main_maker_image_resource",
-        profile_image_resource,
-        onUpdate = ReferenceOption.CASCADE,
-        onDelete = ReferenceOption.SET_NULL,
-    ).nullable()
     val createdAt = timestampWithTimeZone("created_at")
     val updatedAt = timestampWithTimeZone("updated_at")
+}
+
+object shochu_maker_image_resource: UUIDTable("shochu_maker_image_resource", "resource_id") {
+    val resourceUrl = stringValueObject<ResourceUrl>("resource_url")
+    val relatedMaker = reference(
+        "related_maker",
+        shochu_maker,
+        onDelete = ReferenceOption.CASCADE,
+        onUpdate = ReferenceOption.CASCADE,
+    )
+    val createdAt = timestampWithTimeZone("created_at")
 }

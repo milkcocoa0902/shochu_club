@@ -14,5 +14,6 @@ object system_uid: UUIDTable("system_uid", "uid") {
     val deleteReason = integerValueObject<DeleteReason>("delete_reason").nullable()
 
     val createdAt = timestampWithTimeZone("created_at")
+    val updatedAt = timestampWithTimeZone("updated_at")
     val deletedAt = timestampWithTimeZone("deleted_at").nullable()
 }

@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 object provisional_registration: UUIDTable("provisional_registration", "id") {
     val uid = reference(
-        "system_uid",
+        "uid",
         system_uid,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE

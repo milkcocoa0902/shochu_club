@@ -25,7 +25,7 @@ class ShochuClubUser(
     var birthday by shochu_club_user.birthday
     var nickName by shochu_club_user.nickname
     var comment by shochu_club_user.comment
-    var iconUrl by ImageResource optionalReferencedOn shochu_club_user.iconUrl
+    var profileIconUrl by shochu_club_user.profileIconUrl
     var createdAt by shochu_club_user.createdAt
     var updatedAt by shochu_club_user.updatedAt
     var lastLoginAt by shochu_club_user.lastLoginAt

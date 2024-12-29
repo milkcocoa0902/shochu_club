@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestampWithTimeZone
 
 object anonymous_user: UUIDTable("anonymous_user", "id") {
     val uid = reference(
-        "system_uid",
+        "uid",
         system_uid,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
