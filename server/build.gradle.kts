@@ -1,9 +1,12 @@
+import de.undercouch.gradle.tasks.download.Download
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.rpc)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     application
+    id ("de.undercouch.download") version "5.3.0"
 }
 
 group = "com.milkcocoa.info.shochu_club"
@@ -59,4 +62,18 @@ dependencies {
 }
 kotlin {
     jvmToolchain(17)
+}
+
+val newRelicDownloadDestination = layout.buildDirectory.dir("tmp/newrelic").get()
+val newRelicExtractDestination = layout.projectDirectory.dir("newrelic")
+
+tasks.register<Download>("downloadNewrelic"){
+    mkdir(newRelicDownloadDestination)
+    src("https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip")
+    dest(newRelicDownloadDestination)
+}
+
+tasks.register<Copy>("unzipNewrelic"){
+    from(zipTree(file( newRelicDownloadDestination.file("newrelic-java.zip"))))
+    into("$newRelicExtractDestination")
 }

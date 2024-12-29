@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.kotlinx.rpc)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("newrelic")
 }
 
 android {
@@ -131,4 +132,5 @@ dependencies {
 
 
     implementation(libs.kotlinx.datetime)
+    implementation("com.newrelic.agent.android:android-agent:7.6.2")
 }

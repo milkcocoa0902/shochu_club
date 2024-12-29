@@ -2,6 +2,7 @@ buildscript {
     dependencies {
         classpath(libs.hilt.android.gradle.plugin)
         classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.5")
+        classpath("com.newrelic.agent.android:agent-gradle-plugin:7.6.2")
     }
 }
 
