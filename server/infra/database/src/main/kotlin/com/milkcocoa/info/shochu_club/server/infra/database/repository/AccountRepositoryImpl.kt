@@ -43,6 +43,9 @@ class AccountRepositoryImpl(): AccountRepository {
             this.createdAt = Clock.System.now()
                 .toJavaInstant()
                 .atOffset(ZoneOffset.UTC)
+            this.updatedAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
             this.isDeleted = IsDeleted(false)
             this.deleteReason = null
             this.deletedAt = null
@@ -140,11 +143,16 @@ class AccountRepositoryImpl(): AccountRepository {
             this.lastLoginAt = Clock.System.now()
                 .toJavaInstant()
                 .atOffset(ZoneOffset.UTC)
+            this.profileIconUrl = ProfileIconUrl(value = "")
         }
         return Account.AuthenticatedUser(
             systemUid = systemUser.id.value.toKotlinUuid(),
             userName = systemUser.username.value,
-            iconUrl = account.iconUrl?.let { StoredMediaObject.Image.UnResolved(id = it.id.value.toKotlinUuid(), key = it.resourceUrl.value, resolution = MediaResolutionVariant.Original) } ?: StoredMediaObject.Image.NoData,
+            iconUrl = StoredMediaObject.Image.UnResolved(
+                id = Uuid.random(),
+                key = account.profileIconUrl.value,
+                resolution = MediaResolutionVariant.Original
+            ),
             comment = account.comment.value,
             nickName = account.nickName.value,
             registeredAt = account.createdAt.toInstant().toKotlinInstant(),
@@ -158,6 +166,10 @@ class AccountRepositoryImpl(): AccountRepository {
     ) {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
         systemUser.username = UserName(username)
+
+        systemUser.updatedAt = Clock.System.now()
+            .toJavaInstant()
+            .atOffset(ZoneOffset.UTC)
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -180,7 +192,11 @@ class AccountRepositoryImpl(): AccountRepository {
             return Account.AuthenticatedUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
                 userName = systemUser.username.value,
-                iconUrl = authenticatedUser.iconUrl?.let { StoredMediaObject.Image.UnResolved(id = it.id.value.toKotlinUuid(), key = it.resourceUrl.value, resolution = MediaResolutionVariant.Original) } ?: StoredMediaObject.Image.NoData,
+                iconUrl = StoredMediaObject.Image.UnResolved(
+                    id = Uuid.random(),
+                    key = authenticatedUser.profileIconUrl.value,
+                    resolution = MediaResolutionVariant.Original
+                ),
                 comment = authenticatedUser.comment.value,
                 nickName = authenticatedUser.nickName.value,
                 registeredAt = authenticatedUser.createdAt.toInstant().toKotlinInstant(),
@@ -195,6 +211,10 @@ class AccountRepositoryImpl(): AccountRepository {
         comment: String
     ): Account {
         val systemUser = SystemUid.get(systemUid.toJavaUuid())
+
+        systemUser.updatedAt = Clock.System.now()
+            .toJavaInstant()
+            .atOffset(ZoneOffset.UTC)
 
         if(systemUser.isAnonymousUser.value){
             val anonymousUser = AnonymousUser.find { anonymous_user.uid eq systemUser.id.value }.first()
@@ -217,7 +237,11 @@ class AccountRepositoryImpl(): AccountRepository {
             return Account.AuthenticatedUser(
                 systemUid = systemUser.id.value.toKotlinUuid(),
                 userName = systemUser.username.value,
-                iconUrl = authenticatedUser.iconUrl?.let { StoredMediaObject.Image.UnResolved(id = it.id.value.toKotlinUuid(), key = it.resourceUrl.value, resolution = MediaResolutionVariant.Original) } ?: StoredMediaObject.Image.NoData,
+                iconUrl = StoredMediaObject.Image.UnResolved(
+                    id = Uuid.random(),
+                    key = authenticatedUser.profileIconUrl.value,
+                    resolution = MediaResolutionVariant.Original
+                ),
                 comment = authenticatedUser.comment.value,
                 nickName = authenticatedUser.nickName.value,
                 registeredAt = authenticatedUser.createdAt.toInstant().toKotlinInstant(),
@@ -243,7 +267,13 @@ class AccountRepositoryImpl(): AccountRepository {
     override suspend fun promoteSystemUidIntoAuthenticated(
         systemUid: Uuid
     ) {
-        SystemUid.get(systemUid.toJavaUuid()).isAnonymousUser = IsAnonymousUser(false)
+        SystemUid.get(systemUid.toJavaUuid()).run {
+            isAnonymousUser = IsAnonymousUser(false)
+
+            updatedAt = Clock.System.now()
+                .toJavaInstant()
+                .atOffset(ZoneOffset.UTC)
+        }
     }
 
     @OptIn(ExperimentalUuidApi::class)
